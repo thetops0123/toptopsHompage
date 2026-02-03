@@ -253,4 +253,66 @@ $light-gray: #f8f9fa;
 		transform: translateY(0);
 	}
 }
+
+// 모바일 반응형
+@media (max-width: 968px) {
+	.hero {
+		.container {
+			max-width: 95%;
+
+			h1 {
+				font-size: 2rem;
+				margin: 6rem 0 0 0;
+			}
+
+			p {
+				font-size: 1.1rem;
+				line-height: 1.6;
+			}
+		}
+
+		.brand-slider {
+			bottom: 4rem;
+			height: 140px;
+
+			.brand-slide {
+				gap: 40px;
+
+				.brand-item {
+					width: 120px;
+					height: 60px;
+				}
+			}
+		}
+	}
+}
+
+@media (max-width: 640px) {
+	.hero {
+		.container {
+			h1 {
+				font-size: 1.6rem;
+				margin: 4rem 0 0 0;
+			}
+
+			p {
+				font-size: 0.95rem;
+			}
+		}
+
+		.brand-slider {
+			bottom: 2rem;
+			height: 100px;
+
+			.brand-slide {
+				gap: 30px;
+
+				.brand-item {
+					width: 90px;
+					height: 45px;
+				}
+			}
+		}
+	}
+}
 </style>

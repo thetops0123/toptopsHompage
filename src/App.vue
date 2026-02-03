@@ -36,7 +36,17 @@
 		<router-view></router-view>
 
 		<footer class="footer" v-if="route.path !== '/admin/administrator'">
-			<div>© 2026 더탑스. All rights reserved.</div>
+			<div class="logo">
+				<span>THE TOPS</span>
+			</div>
+			<div class="info">
+				<address>경기 하남시 미사강변중앙로31번길 30</address>
+				<p>대표자 : 오용현</p>
+				<p>사업자등록번호 : 123-45-67890</p>
+				<p>전화번호 : 031-123-4567</p>
+				<p>이메일 : hyun6993@naver.com</p>
+				<span>© 2026 THE TOPS. All rights reserved.</span>
+			</div>
 		</footer>
 	</div>
 </template>
@@ -356,12 +366,27 @@ $section-bg-5: #e0e1dd;
 
 // 푸터
 .footer {
-	background: #000;
-	color: $gray-text;
-	text-align: center;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 1120px;
+	background: #0c0c0c;
+	color: $white-text;
 	padding: 2.5rem 0;
-	font-size: 0.95rem;
+	margin: 0 auto;
+
+	padding: 2rem 4rem;
 	letter-spacing: 1px;
+
+	.info {
+		text-align: right;
+		font-size: 0.9rem;
+		font-weight: 300;
+
+		span {
+			color: #8f8f8f;
+		}
+	}
 }
 
 /* Buttons */
@@ -482,6 +507,130 @@ $section-bg-5: #e0e1dd;
 	}
 	100% {
 		transform: rotate(360deg);
+	}
+}
+
+// 모바일 반응형
+@media (max-width: 968px) {
+	.header {
+		padding: 0 2rem;
+		height: 60px;
+
+		.logo {
+			font-size: 1.4rem;
+		}
+
+		nav {
+			display: none;
+		}
+
+		.navCtas {
+			margin-left: auto;
+
+			.btn {
+				font-size: 0.85rem;
+				padding: 8px 16px;
+			}
+		}
+	}
+
+	.section {
+		padding: 4rem 0;
+
+		.container {
+			padding: 1.5rem 1.5rem 0;
+		}
+
+		h2 {
+			font-size: 1.8rem;
+		}
+
+		h3 {
+			font-size: 0.95rem;
+		}
+	}
+
+	.footer {
+		padding: 2rem 1.5rem;
+		flex-direction: column;
+		gap: 1.5rem;
+		text-align: center;
+
+		.logo {
+			font-size: 1.4rem;
+		}
+
+		.info {
+			font-size: 0.85rem;
+			line-height: 1.6;
+
+			address,
+			p,
+			span {
+				margin: 4px 0;
+			}
+		}
+	}
+
+	.loading-screen {
+		.loading-content {
+			gap: 2rem;
+
+			.loading-logo {
+				font-size: 2rem;
+			}
+
+			.loading-spinner {
+				width: 60px;
+				height: 60px;
+			}
+		}
+	}
+}
+
+@media (max-width: 640px) {
+	.header {
+		padding: 0 1rem;
+		height: 56px;
+
+		.logo {
+			font-size: 1.2rem;
+		}
+
+		.navCtas {
+			.btn {
+				font-size: 0.8rem;
+				padding: 6px 12px;
+			}
+		}
+	}
+
+	.section {
+		padding: 3rem 0;
+
+		.container {
+			padding: 1rem 1rem 0;
+		}
+
+		h2 {
+			font-size: 1.5rem;
+		}
+
+		h3 {
+			font-size: 0.9rem;
+		}
+	}
+
+	.footer {
+		padding: 1.5rem 1rem;
+
+		.logo {
+			font-size: 1.2rem;
+		}
+
+		.info {
+			font-size: 0.8rem;
+		}
 	}
 }
 </style>

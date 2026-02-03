@@ -176,6 +176,16 @@ onUnmounted(() => {
 		z-index: 2001;
 		transition: all 0.2s ease;
 		padding: 0;
+		outline: none;
+
+		&:focus {
+			outline: none;
+		}
+
+		&:focus-visible {
+			outline: 2px solid white;
+			outline-offset: 2px;
+		}
 
 		&:hover {
 			opacity: 0.7;
@@ -225,7 +235,7 @@ onUnmounted(() => {
 	}
 
 	&__nav {
-		border: none;
+		border: none !important;
 		background: transparent;
 		color: #333;
 		width: 60px;
@@ -235,6 +245,16 @@ onUnmounted(() => {
 		align-items: center;
 		justify-content: center;
 		transition: all 0.2s ease;
+		outline: none;
+
+		&:focus {
+			outline: none;
+		}
+
+		&:focus-visible {
+			outline: 2px solid #333;
+			outline-offset: 2px;
+		}
 
 		&:hover {
 			color: #111;
@@ -263,6 +283,16 @@ onUnmounted(() => {
 		overflow: hidden;
 		width: 80px;
 		height: 50px;
+		outline: none;
+
+		&:focus {
+			outline: none;
+		}
+
+		&:focus-visible {
+			outline: 2px solid #333;
+			outline-offset: 2px;
+		}
 
 		img {
 			width: 100%;
@@ -271,7 +301,6 @@ onUnmounted(() => {
 		}
 
 		&.is-active {
-			border-color: #111;
 		}
 	}
 }

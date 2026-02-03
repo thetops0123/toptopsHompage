@@ -253,5 +253,35 @@
 			}
 		}
 	}
+
+	@media (max-width: 640px) {
+		padding: 3rem 0;
+
+		h2 {
+			font-size: 1.6rem;
+		}
+
+		h3 {
+			font-size: 0.9rem;
+		}
+
+		.timeline-content-wrapper {
+			gap: 1.2rem;
+		}
+
+		.timeline-item {
+			.year {
+				font-size: 1.3rem;
+			}
+
+			h4 {
+				font-size: 1rem;
+			}
+		}
+
+		.project-list {
+			font-size: 0.8rem;
+		}
+	}
 }
 </style>

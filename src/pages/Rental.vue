@@ -221,4 +221,43 @@ $white-text: #ffffff;
 		opacity: 1;
 	}
 }
+
+// 모바일 반응형
+@media (max-width: 968px) {
+	.section-rental {
+		.rental-grid {
+			grid-template-columns: repeat(2, 1fr);
+			gap: 1.5rem;
+		}
+
+		.rental-card {
+			h3 {
+				font-size: 1.1rem;
+			}
+
+			p {
+				font-size: 0.9rem;
+			}
+		}
+	}
+}
+
+@media (max-width: 640px) {
+	.section-rental {
+		.rental-grid {
+			grid-template-columns: 1fr;
+			gap: 1.2rem;
+		}
+
+		.rental-card {
+			h3 {
+				font-size: 1rem;
+			}
+
+			p {
+				font-size: 0.85rem;
+			}
+		}
+	}
+}
 </style>

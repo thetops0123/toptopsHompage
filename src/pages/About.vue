@@ -1,7 +1,8 @@
 <template>
 	<section id="about" class="section section-about">
 		<div class="container">
-			<h2>당신의 작은 행동까지, 우리는 더 깊게 고민합니다</h2>
+			<!--<h2>당신의 작은 행동까지, 우리는 더 깊게 고민합니다</h2>-->
+			<h2>ABOUT - <span>IDENTITY</span></h2>
 			<h3>행사의 모든 순간을 책임집니다. 기획부터 제작, 운영까지 한번에 해결하는 행사 파트너</h3>
 			<div class="content">
 				<div class="service-section">
@@ -69,7 +70,7 @@
 
 				<div class="story-card reverse">
 					<div class="story-text">
-						<h2>WORKFLOW</h2>
+						<h2><span>WORKFLOW</span></h2>
 						<h3>행사는 아이디어에서 시작하지만 성공은 현장에서 완성 됩니다</h3>
 
 						<div class="story-flow">
@@ -406,6 +407,54 @@
 				&.reverse {
 					.story-text {
 						order: unset;
+					}
+				}
+			}
+		}
+	}
+
+	@media (max-width: 640px) {
+		.content {
+			.service-section {
+				.service-grid {
+					gap: 1.2rem;
+				}
+
+				.service-card {
+					.service-icon {
+						width: 70px;
+						height: 70px;
+
+						svg {
+							width: 36px;
+							height: 36px;
+						}
+					}
+
+					h5 {
+						font-size: 1rem;
+					}
+
+					p {
+						font-size: 0.85rem;
+					}
+				}
+			}
+
+			.story-card {
+				gap: 1.5rem;
+
+				.story-image {
+					height: 220px;
+				}
+
+				.story-text {
+					h4 {
+						font-size: 1.2rem;
+					}
+
+					p {
+						font-size: 0.9rem;
 					}
 				}
 			}

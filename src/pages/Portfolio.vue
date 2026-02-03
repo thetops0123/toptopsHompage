@@ -5,7 +5,7 @@
 				<h2>PORTFOLIO - <span>EXPERIENCES</span></h2>
 				<router-link v-if="isHomePage" to="/portfolio" class="btn-view-all">View All</router-link>
 			</div>
-			<h3>진행한 행사 사례를 소개합니다.</h3>
+			<h3>치열한 토론과 정교한 설계가 만들어낸 최고의 무대. 우리가 함께 만든 잊지 못할 경험의 아카이브입니다.</h3>
 			<div v-if="loading" class="portfolio-loading">불러오는 중...</div>
 			<div v-else-if="error" class="portfolio-error">{{ error }}</div>
 			<div v-else class="portfolio-grid">
@@ -128,17 +128,27 @@ onUnmounted(() => {
 <style lang="scss" scoped>
 $gray-text: #b0b0b0;
 
+.btn-view-all {
+	border: 2px solid rgba(255, 255, 255, 0.3);
+	color: #fff;
+
+	&:hover {
+		background: rgba(255, 255, 255, 1);
+		color: #000;
+		transform: translateX(5px);
+	}
+}
 .section-portfolio {
-	background: #e0e1dd;
-	color: #333;
+	background: #b13d3d;
+	color: #fff;
 	min-height: 100vh;
 
 	h2 {
-		color: #333;
+		color: #fff;
 	}
 
 	h3 {
-		color: #666;
+		color: #e1e1e1;
 	}
 
 	.portfolio-grid {
@@ -148,16 +158,23 @@ $gray-text: #b0b0b0;
 
 		.portfolio-card {
 			background: #ffffff;
-			border: 1px solid #e0e0e0;
+			//border: 1px solid #e0e0e0;
 			border-radius: 8px;
 			overflow: hidden;
 			transition: all 0.3s ease;
 			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 			cursor: pointer;
 
+			img {
+				transition: all 0.3s ease;
+			}
 			&:hover {
 				transform: translateY(-10px);
 				box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+
+				img {
+					transform: scale(1.05);
+				}
 			}
 
 			.portfolio-image {
@@ -216,6 +233,45 @@ $gray-text: #b0b0b0;
 	}
 	50% {
 		opacity: 1;
+	}
+}
+
+// 모바일 반응형
+@media (max-width: 968px) {
+	.section-portfolio {
+		.portfolio-grid {
+			grid-template-columns: repeat(2, 1fr);
+			gap: 1.5rem;
+		}
+
+		.portfolio-card {
+			h3 {
+				font-size: 1.1rem;
+			}
+
+			p {
+				font-size: 0.9rem;
+			}
+		}
+	}
+}
+
+@media (max-width: 640px) {
+	.section-portfolio {
+		.portfolio-grid {
+			grid-template-columns: 1fr;
+			gap: 1.2rem;
+		}
+
+		.portfolio-card {
+			h3 {
+				font-size: 1rem;
+			}
+
+			p {
+				font-size: 0.85rem;
+			}
+		}
 	}
 }
 </style>
