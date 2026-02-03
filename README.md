@@ -1,6 +1,6 @@
 # THE TOPS Homepage
 
-THE TOPS 공식 홈페이지 - 드론 촬영 및 영상 제작 전문 업체
+THE TOPS 공식 홈페이지 - 행사 전문 업체
 
 ## 🚀 기술 스택
 
@@ -94,6 +94,14 @@ npm run preview
 - `show_on_home`: BOOLEAN (메인 페이지 표시 여부)
 - `created_at`: TIMESTAMP
 
+### Partners 테이블
+
+- `id`: UUID (Primary Key)
+- `name`: VARCHAR (제휴처 이름)
+- `logo_url`: TEXT (로고 이미지 URL)
+- `display_order`: INTEGER (표시 순서)
+- `created_at`: TIMESTAMP
+
 ## 🎯 페이지 구조
 
 ```
@@ -118,8 +126,8 @@ npm run preview
 
 ## 📝 라이센스
 
-Private Project
+THE TOPS Private Project
 
 ## 👥 Contact
 
-THE TOPS - 드론 촬영 및 영상 제작 전문 업체
+THE TOPS - tkkim@const-soft.com
