@@ -14,6 +14,7 @@ THE TOPS 공식 홈페이지 - 드론 촬영 및 영상 제작 전문 업체
 ## 📋 주요 기능
 
 ### 사용자 페이지
+
 - **메인 페이지**: 비디오 배경과 서비스 소개
 - **About**: 회사 소개
 - **History**: 회사 연혁 (애니메이션 효과)
@@ -24,6 +25,7 @@ THE TOPS 공식 홈페이지 - 드론 촬영 및 영상 제작 전문 업체
 - **로딩 스크린**: 초기 페이지 로드 시 우아한 로딩 애니메이션
 
 ### 관리자 페이지
+
 - **인증 시스템**: 로그인 기반 접근 제어
 - **Rental 관리**: 장비 등록/수정/삭제, 이미지 업로드, 메인 표시 제어
 - **Portfolio 관리**: 포트폴리오 등록/수정/삭제, 이미지 업로드, 메인 표시 제어
@@ -40,10 +42,12 @@ THE TOPS 공식 홈페이지 - 드론 촬영 및 영상 제작 전문 업체
 ## 📦 설치 및 실행
 
 ### 필수 요구사항
+
 - Node.js 18.x 이상
 - npm 또는 yarn
 
 ### 환경 변수 설정
+
 프로젝트 루트에 `.env` 파일을 생성하고 다음 내용을 입력하세요:
 
 ```env
@@ -72,6 +76,7 @@ npm run preview
 ## 🗄️ 데이터베이스 구조
 
 ### Rentals 테이블
+
 - `id`: UUID (Primary Key)
 - `category`: VARCHAR (장비 카테고리)
 - `name`: VARCHAR (장비 이름)
@@ -81,6 +86,7 @@ npm run preview
 - `created_at`: TIMESTAMP
 
 ### Portfolios 테이블
+
 - `id`: UUID (Primary Key)
 - `category`: VARCHAR (작업 카테고리)
 - `title`: VARCHAR (작업 제목)
