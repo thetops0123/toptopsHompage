@@ -81,9 +81,87 @@
 				<section v-else class="admin-panel">
 					<div class="admin-panel-header">
 						<h2>{{ activeTabLabel }}</h2>
-						<button class="btn-primary" type="button" @click="resetForm">신규 등록</button>
+						<button class="btn-primary btn-add-desktop" type="button" @click="resetForm">신규 등록</button>
+						<button class="btn-primary btn-add-mobile" type="button" @click="openMobileForm">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="20"
+								height="20"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2.5"
+							>
+								<line x1="12" y1="5" x2="12" y2="19"></line>
+								<line x1="5" y1="12" x2="19" y2="12"></line>
+							</svg>
+							신규 등록
+						</button>
 					</div>
 
+					<!-- 모바일 카드 리스트 -->
+					<div class="mobile-card-list">
+						<div v-if="loading" class="loading-card">불러오는 중...</div>
+						<div v-else-if="error" class="error-card">{{ error }}</div>
+						<div v-else-if="items.length === 0" class="empty-card">등록된 항목이 없습니다</div>
+						<div
+							v-else
+							class="card-item"
+							v-for="item in items"
+							:key="item.id"
+							@click="editMobileItem(item)"
+						>
+							<div class="card-image">
+								<img :src="isPartnerTab ? item.logo_url : item.main_image_url" alt="" />
+								<span
+									v-if="(activeTab === 'rental' || activeTab === 'portfolio') && item.show_on_home"
+									class="card-badge"
+									>메인 표시</span
+								>
+							</div>
+							<div class="card-content">
+								<h4 class="card-title">{{ isPartnerTab ? item.name : item.title }}</h4>
+								<p class="card-desc" v-if="!isPartnerTab">{{ item.description }}</p>
+								<p class="card-order" v-if="isPartnerTab">표시순서: {{ item.display_order }}</p>
+								<div class="card-actions">
+									<button class="btn-card-edit" type="button" @click.stop="editMobileItem(item)">
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											width="16"
+											height="16"
+											viewBox="0 0 24 24"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="2"
+										>
+											<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+											<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+										</svg>
+										수정
+									</button>
+									<button class="btn-card-delete" type="button" @click.stop="deleteItem(item)">
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											width="16"
+											height="16"
+											viewBox="0 0 24 24"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="2"
+										>
+											<polyline points="3 6 5 6 21 6"></polyline>
+											<path
+												d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+											></path>
+										</svg>
+										삭제
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- 데스크톱 테이블 -->
 					<div class="admin-grid">
 						<div class="admin-list">
 							<table>
@@ -254,6 +332,119 @@
 						</div>
 					</div>
 				</section>
+
+				<!-- 모바일 폼 모달 -->
+				<div class="mobile-form-modal" v-if="showMobileForm" @click="closeMobileForm">
+					<div class="modal-content" @click.stop>
+						<div class="modal-header">
+							<h3>{{ form.id ? '수정하기' : '신규 등록' }}</h3>
+							<button class="modal-close" type="button" @click="closeMobileForm">
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="24"
+									height="24"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+								>
+									<line x1="18" y1="6" x2="6" y2="18"></line>
+									<line x1="6" y1="6" x2="18" y2="18"></line>
+								</svg>
+							</button>
+						</div>
+						<div class="modal-body">
+							<!-- 제휴처 폼 -->
+							<form v-if="isPartnerTab" @submit.prevent="handleSubmit" class="mobile-form">
+								<div class="form-row">
+									<label>제휴처명</label>
+									<input v-model="form.title" type="text" required />
+								</div>
+								<div class="form-row">
+									<label>로고 이미지</label>
+									<input
+										:key="'main-' + fileInputKey"
+										type="file"
+										accept="image/*"
+										@change="onMainFileChange"
+									/>
+									<div class="preview" v-if="form.mainImageUrl">
+										<img :src="form.mainImageUrl" alt="" />
+									</div>
+								</div>
+								<div class="form-row">
+									<label>표시 순서</label>
+									<input v-model.number="form.displayOrder" type="number" min="1" required />
+								</div>
+								<button class="btn-primary" type="submit" :disabled="saving">
+									{{ saving ? '저장 중...' : form.id ? '수정' : '등록' }}
+								</button>
+							</form>
+
+							<!-- 렌탈/포트폴리오 폼 -->
+							<form v-else @submit.prevent="handleSubmit" class="mobile-form">
+								<div class="form-row">
+									<label>제목</label>
+									<input v-model="form.title" type="text" required placeholder="제목을 입력하세요" />
+								</div>
+								<div class="form-row">
+									<label>
+										설명
+										<span class="char-count">{{ form.description.length }}/60자</span>
+									</label>
+									<textarea
+										placeholder="최대 60자까지 가능합니다."
+										v-model="form.description"
+										rows="4"
+										maxlength="60"
+										required
+									></textarea>
+								</div>
+
+								<div class="form-row" v-if="activeTab === 'rental' || activeTab === 'portfolio'">
+									<label class="checkbox-label">
+										<input v-model="form.showOnHome" type="checkbox" />
+										<span>메인 화면에 표시</span>
+									</label>
+								</div>
+
+								<div class="form-row">
+									<label>메인 이미지</label>
+									<input
+										:key="'main-' + fileInputKey"
+										type="file"
+										accept="image/*"
+										@change="onMainFileChange"
+									/>
+									<div class="preview" v-if="form.mainImageUrl">
+										<img :src="form.mainImageUrl" alt="" />
+									</div>
+								</div>
+
+								<div class="form-row">
+									<label>서브 이미지 (3장)</label>
+									<div class="sub-image-grid">
+										<div v-for="(url, idx) in form.subImageUrls" :key="idx" class="sub-item">
+											<input
+												:key="'sub-' + idx + '-' + fileInputKey"
+												type="file"
+												accept="image/*"
+												@change="(e) => onSubFileChange(e, idx)"
+											/>
+											<div class="preview" v-if="url">
+												<img :src="url" alt="" />
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<button class="btn-primary" type="submit" :disabled="saving">
+									{{ saving ? '저장 중...' : form.id ? '수정하기' : '등록하기' }}
+								</button>
+							</form>
+						</div>
+					</div>
+				</div>
 			</main>
 		</div>
 
@@ -290,6 +481,7 @@ const error = ref('');
 const saving = ref(false);
 const formError = ref('');
 const fileInputKey = ref(0);
+const showMobileForm = ref(false);
 
 const form = reactive({
 	id: null,
@@ -349,6 +541,23 @@ const resetForm = () => {
 	form.showOnHome = false;
 	formError.value = '';
 	fileInputKey.value += 1; // input 리셋을 위한 key 변경
+};
+
+const openMobileForm = () => {
+	resetForm();
+	showMobileForm.value = true;
+	document.body.style.overflow = 'hidden';
+};
+
+const closeMobileForm = () => {
+	showMobileForm.value = false;
+	document.body.style.overflow = '';
+};
+
+const editMobileItem = (item) => {
+	editItem(item);
+	showMobileForm.value = true;
+	document.body.style.overflow = 'hidden';
 };
 
 const fetchItems = async () => {
@@ -498,6 +707,7 @@ const handleSubmit = async () => {
 
 		resetForm();
 		await fetchItems();
+		closeMobileForm();
 	} catch (err) {
 		console.error(err);
 		formError.value = err.message || '저장 중 오류가 발생했습니다.';
@@ -528,7 +738,7 @@ onMounted(() => {
 .section-admin {
 	height: 100vh;
 	padding: 0;
-	background: #f5f6f8;
+	background: #fafbfc;
 	color: #111;
 	overflow: hidden;
 }
@@ -590,26 +800,27 @@ onMounted(() => {
 
 .admin-nav-item {
 	text-align: left;
-	padding: 10px 12px;
-	border: 1px solid #e6e6e6;
+	padding: 12px 16px;
+	border: 1.5px solid #e8e8e8;
 	border-radius: 8px;
-	background: #fafafa;
+	background: #ffffff;
 	font-size: 0.95rem;
-	color: #333;
+	font-weight: 500;
+	color: #555;
 	cursor: pointer;
-	transition:
-		background 0.2s ease,
-		border-color 0.2s ease;
+	transition: all 0.25s ease;
 
 	&:hover {
-		background: #f0f0f0;
-		border-color: #dcdcdc;
+		background: #f8f8f8;
+		border-color: #d0d0d0;
+		color: #333;
 	}
 
 	&.is-active {
-		background: #111;
+		background: linear-gradient(135deg, #111 0%, #2a2a2a 100%);
 		color: #fff;
 		border-color: #111;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 	}
 }
 
@@ -720,7 +931,7 @@ onMounted(() => {
 
 .thumb {
 	width: 70px;
-	height: 50px;
+	//height: 50px;
 	object-fit: cover;
 	border-radius: 6px;
 	background: #f0f0f0;
@@ -729,66 +940,126 @@ onMounted(() => {
 .admin-form-wrap {
 	position: sticky;
 	top: 96px;
-	background: #fafafa;
-	border: 1px solid #efefef;
-	border-radius: 10px;
-	padding: 18px;
-
+	background: #ffffff;
+	border: 1.5px solid #e8e8e8;
+	border-radius: 12px;
+	padding: 24px;
+	box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
 	width: 40%;
 	align-self: flex-start;
-	max-height: 100vh;
+	max-height: calc(100vh - 120px);
 	overflow-y: auto;
+
+	&::-webkit-scrollbar {
+		width: 6px;
+	}
+
+	&::-webkit-scrollbar-track {
+		background: #f5f5f5;
+		border-radius: 3px;
+	}
+
+	&::-webkit-scrollbar-thumb {
+		background: #ccc;
+		border-radius: 3px;
+
+		&:hover {
+			background: #aaa;
+		}
+	}
 }
 
 .admin-form {
 	display: flex;
 	flex-direction: column;
-	gap: 14px;
+	gap: 16px;
 
 	.form-row {
 		display: flex;
 		flex-direction: column;
-		gap: 6px;
+		gap: 8px;
 
 		label {
-			font-size: 0.85rem;
-			color: #444;
+			font-size: 0.875rem;
+			color: #333;
+			font-weight: 600;
 			display: flex;
-			justify-content: flex-start;
+			justify-content: space-between;
 			align-items: center;
+			margin-bottom: 2px;
 
 			.char-count {
 				font-size: 0.75rem;
 				color: #999;
+				font-weight: 400;
+			}
+		}
+
+		input[type='text'],
+		input[type='url'],
+		input[type='password'],
+		input[type='file'] {
+			width: 100%;
+			padding: 11px 14px;
+			border: 1.5px solid #e0e0e0;
+			border-radius: 8px;
+			font-size: 0.9rem;
+			color: #333;
+			background: #ffffff;
+			transition: all 0.2s ease;
+			font-family: inherit;
+
+			&:focus {
+				outline: none;
+				border-color: #111;
+				box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+			}
+
+			&::placeholder {
+				color: #aaa;
+			}
+
+			&:disabled {
+				background: #f5f5f5;
+				color: #999;
+				cursor: not-allowed;
 			}
 		}
 
 		textarea {
+			width: 100%;
+			padding: 11px 14px;
+			border: 1.5px solid #e0e0e0;
 			border-radius: 8px;
-			padding: 10px;
 			font-size: 0.9rem;
-			background: #000;
-			color: #fff;
+			color: #333;
+			background: #ffffff;
+			transition: all 0.2s ease;
+			font-family: inherit;
+			resize: vertical;
+			min-height: 90px;
 
-			&::placeholder {
-				color: #999;
+			&:focus {
+				outline: none;
+				border-color: #111;
+				box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
 			}
-		}
 
-		input {
 			&::placeholder {
-				color: #999;
+				color: #aaa;
 			}
 		}
 
 		.preview {
-			margin-top: 6px;
+			margin-top: 8px;
 
 			img {
 				width: 100%;
 				height: auto;
-				max-height: 150px;
+				max-height: 180px;
 				object-fit: contain;
+				border-radius: 8px;
+				border: 1px solid #e0e0e0;
 			}
 		}
 	}
@@ -796,8 +1067,35 @@ onMounted(() => {
 	.hint {
 		font-size: 0.75rem;
 		color: #999;
-		margin-top: 4px;
+		margin-top: 2px;
 		display: block;
+		line-height: 1.4;
+	}
+
+	.checkbox-label {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		cursor: pointer;
+		font-size: 0.9rem;
+		color: #333;
+		padding: 8px 0;
+		transition: color 0.2s ease;
+
+		input[type='checkbox'] {
+			width: 20px;
+			height: 20px;
+			cursor: pointer;
+			accent-color: #111;
+		}
+
+		span {
+			user-select: none;
+		}
+
+		&:hover {
+			color: #111;
+		}
 	}
 }
 
@@ -831,27 +1129,56 @@ onMounted(() => {
 
 .btn-primary {
 	border: none;
-	background: #111;
+	background: linear-gradient(135deg, #111 0%, #2a2a2a 100%);
 	color: #fff;
-	padding: 10px 14px;
+	padding: 12px 20px;
 	border-radius: 8px;
 	cursor: pointer;
 	font-weight: 600;
+	font-size: 0.9rem;
+	transition: all 0.3s ease;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+	&:hover {
+		background: linear-gradient(135deg, #000 0%, #1a1a1a 100%);
+		transform: translateY(-1px);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+	}
+
+	&:active {
+		transform: translateY(0);
+		box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+	}
 }
 
 .btn-small {
-	border: 1px solid #ddd;
+	border: 1.5px solid #e0e0e0;
 	background: #fff;
 	color: #333;
-	padding: 6px 10px;
+	padding: 7px 14px;
 	border-radius: 6px;
 	cursor: pointer;
 	margin-right: 6px;
+	font-size: 0.85rem;
+	font-weight: 500;
+	transition: all 0.2s ease;
+
+	&:hover {
+		background: #f8f8f8;
+		border-color: #ccc;
+	}
 }
 
 .btn-danger {
-	border-color: #ffdddd;
-	color: #c62828;
+	border-color: #fee;
+	color: #d32f2f;
+	background: #fff;
+
+	&:hover {
+		background: #fff5f5;
+		border-color: #ffdddd;
+		color: #c62828;
+	}
 }
 
 .form-error {
@@ -906,6 +1233,21 @@ onMounted(() => {
 	justify-content: center;
 	z-index: 9999;
 	animation: fadeIn 0.2s ease;
+}
+
+// 모바일 카드 리스트
+.mobile-card-list {
+	display: none;
+}
+
+// 모바일 폼 모달
+.mobile-form-modal {
+	display: none;
+}
+
+// 모바일 전용 버튼
+.btn-add-mobile {
+	display: none;
 }
 
 .loading-content {
@@ -992,168 +1334,583 @@ onMounted(() => {
 	}
 }
 
+@keyframes slideUp {
+	from {
+		transform: translateY(100%);
+	}
+	to {
+		transform: translateY(0);
+	}
+}
+
 @media (max-width: 968px) {
 	.section-admin {
-		padding: 2rem 0 1rem;
+		padding: 0;
+		height: auto;
+		min-height: 100vh;
 	}
 
 	.admin-layout {
 		grid-template-columns: 1fr;
 		height: auto;
+		min-height: 100vh;
+		gap: 0;
+	}
+
+	// 데스크톱 테이블 숨기기
+	.admin-grid {
+		display: none !important;
+	}
+
+	// 데스크톱 버튼 숨기기
+	.btn-add-desktop {
+		display: none !important;
+	}
+
+	// 모바일 버튼 표시
+	.btn-add-mobile {
+		display: flex !important;
+		align-items: center;
+		justify-content: center;
+		gap: 6px;
+		padding: 11px 16px !important;
+		font-size: 0.9rem !important;
+
+		svg {
+			flex-shrink: 0;
+		}
+	}
+
+	// 모바일 카드 리스트 표시
+	.mobile-card-list {
+		display: block;
+		padding: 12px;
+
+		.loading-card,
+		.error-card,
+		.empty-card {
+			background: #fff;
+			padding: 40px 20px;
+			border-radius: 12px;
+			text-align: center;
+			color: #666;
+			font-size: 0.9rem;
+		}
+
+		.card-item {
+			background: #fff;
+			border-radius: 12px;
+			overflow: hidden;
+			margin-bottom: 12px;
+			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+			transition: all 0.2s ease;
+			cursor: pointer;
+
+			&:active {
+				transform: scale(0.98);
+			}
+		}
+
+		.card-image {
+			position: relative;
+			width: 100%;
+			height: 180px;
+			overflow: hidden;
+			background: #f5f5f5;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+
+			img {
+				width: 43%;
+				//height: 100%;
+				object-fit: cover;
+			}
+
+			.card-badge {
+				position: absolute;
+				top: 10px;
+				right: 10px;
+				background: rgba(25, 118, 210, 0.95);
+				color: #fff;
+				padding: 5px 12px;
+				border-radius: 20px;
+				font-size: 0.75rem;
+				font-weight: 600;
+				backdrop-filter: blur(4px);
+			}
+		}
+
+		.card-content {
+			padding: 14px;
+		}
+
+		.card-title {
+			font-size: 1rem;
+			font-weight: 600;
+			margin: 0 0 8px 0;
+			color: #111;
+			display: -webkit-box;
+			-webkit-line-clamp: 2;
+			-webkit-box-orient: vertical;
+			overflow: hidden;
+		}
+
+		.card-desc {
+			font-size: 0.85rem;
+			color: #666;
+			margin: 0 0 12px 0;
+			display: -webkit-box;
+			-webkit-line-clamp: 2;
+			-webkit-box-orient: vertical;
+			overflow: hidden;
+			line-height: 1.5;
+		}
+
+		.card-order {
+			font-size: 0.85rem;
+			color: #999;
+			margin: 0 0 12px 0;
+		}
+
+		.card-actions {
+			display: flex;
+			gap: 8px;
+			padding-top: 12px;
+			border-top: 1px solid #f0f0f0;
+		}
+
+		.btn-card-edit,
+		.btn-card-delete {
+			flex: 1;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 6px;
+			padding: 10px;
+			border-radius: 8px;
+			font-size: 0.85rem;
+			font-weight: 500;
+			border: none;
+			cursor: pointer;
+			transition: all 0.2s ease;
+
+			svg {
+				flex-shrink: 0;
+			}
+		}
+
+		.btn-card-edit {
+			background: #f5f5f5;
+			color: #333;
+
+			&:active {
+				background: #e8e8e8;
+			}
+		}
+
+		.btn-card-delete {
+			background: #fff5f5;
+			color: #d32f2f;
+
+			&:active {
+				background: #ffebee;
+			}
+		}
+	}
+
+	// 모바일 폼 모달
+	.mobile-form-modal {
+		display: flex;
+		position: fixed;
+		inset: 0;
+		background: rgba(0, 0, 0, 0.75);
+		backdrop-filter: blur(4px);
+		z-index: 10000;
+		align-items: flex-end;
+		animation: fadeIn 0.2s ease;
+
+		.modal-content {
+			background: #fff;
+			width: 100%;
+			max-height: 90vh;
+			border-radius: 20px 20px 0 0;
+			display: flex;
+			flex-direction: column;
+			animation: slideUp 0.3s ease;
+		}
+
+		.modal-header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 16px 20px;
+			border-bottom: 1px solid #f0f0f0;
+			flex-shrink: 0;
+
+			h3 {
+				font-size: 1.1rem;
+				font-weight: 600;
+				margin: 0;
+				color: #111;
+			}
+
+			.modal-close {
+				background: none;
+				border: none;
+				padding: 4px;
+				cursor: pointer;
+				color: #666;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				transition: all 0.2s ease;
+
+				&:active {
+					transform: scale(0.9);
+					color: #111;
+				}
+			}
+		}
+
+		.modal-body {
+			overflow-y: auto;
+			-webkit-overflow-scrolling: touch;
+			flex: 1;
+			padding: 20px;
+		}
+
+		.mobile-form {
+			.form-row {
+				margin-bottom: 18px;
+
+				label {
+					display: block;
+					font-size: 0.9rem;
+					font-weight: 500;
+					color: #333;
+					margin-bottom: 8px;
+				}
+
+				input[type='text'],
+				input[type='number'],
+				input[type='file'],
+				textarea {
+					width: 100%;
+					padding: 12px 14px;
+					border: 1.5px solid #e0e0e0;
+					border-radius: 8px;
+					font-size: 0.95rem;
+					transition: all 0.2s ease;
+
+					&:focus {
+						outline: none;
+						border-color: #111;
+						box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+					}
+				}
+
+				textarea {
+					resize: vertical;
+					min-height: 90px;
+					font-family: inherit;
+				}
+
+				input[type='file'] {
+					padding: 10px;
+					font-size: 0.85rem;
+				}
+
+				.preview {
+					margin-top: 10px;
+					width: 100%;
+					height: 160px;
+					border-radius: 8px;
+					overflow: hidden;
+					background: #f5f5f5;
+
+					img {
+						width: 100%;
+						height: 100%;
+						object-fit: cover;
+					}
+				}
+
+				.sub-image-grid {
+					display: grid;
+					grid-template-columns: 1fr;
+					gap: 12px;
+
+					.sub-item {
+						.preview {
+							height: 140px;
+						}
+					}
+				}
+
+				.char-count {
+					float: right;
+					font-size: 0.8rem;
+					color: #999;
+					font-weight: 400;
+				}
+
+				.checkbox-label {
+					display: flex;
+					align-items: center;
+					gap: 10px;
+					padding: 12px;
+					background: #f8f8f8;
+					border-radius: 8px;
+					cursor: pointer;
+
+					input[type='checkbox'] {
+						width: 20px;
+						height: 20px;
+						margin: 0;
+					}
+
+					span {
+						font-size: 0.95rem;
+						font-weight: 500;
+						color: #333;
+					}
+				}
+			}
+
+			.btn-primary {
+				width: 100%;
+				padding: 14px;
+				font-size: 1rem;
+				margin-top: 10px;
+			}
+		}
 	}
 
 	.admin-sidebar {
-		position: static;
+		position: sticky;
+		top: 0;
 		height: auto;
 		border-right: none;
-		border-bottom: 1px solid #e6e6e6;
-		padding: 12px 16px;
-	}
+		border-bottom: 2px solid #e6e6e6;
+		padding: 10px 12px;
+		background: #fff;
+		z-index: 100;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 
-	.admin-logo {
-		font-size: 1.2rem;
-		margin-bottom: 12px;
-	}
-
-	.admin-nav {
-		display: flex;
-		gap: 8px;
-		overflow-x: auto;
-		padding-bottom: 8px;
-
-		&::-webkit-scrollbar {
-			height: 4px;
+		.sidebar-top {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			justify-content: space-between;
+			gap: 12px;
+			flex-wrap: wrap;
 		}
 
-		&::-webkit-scrollbar-thumb {
-			background: #ddd;
-			border-radius: 2px;
-		}
-	}
+		.admin-logo {
+			flex-shrink: 0;
 
-	.admin-nav-item {
-		white-space: nowrap;
-		font-size: 0.85rem;
-		padding: 8px 14px;
+			img {
+				width: 120px !important;
+				max-width: 100%;
+			}
+		}
+
+		.admin-nav {
+			display: flex;
+			flex-direction: row;
+			gap: 6px;
+			overflow-x: auto;
+			padding-bottom: 6px;
+			-webkit-overflow-scrolling: touch;
+			flex: 1;
+			min-width: 0;
+
+			&::-webkit-scrollbar {
+				height: 2px;
+			}
+
+			&::-webkit-scrollbar-thumb {
+				background: #ddd;
+				border-radius: 2px;
+			}
+		}
+
+		.admin-nav-item {
+			white-space: nowrap;
+			font-size: 0.8rem;
+			padding: 8px 12px;
+			min-width: fit-content;
+			border-width: 1px;
+		}
+
+		.admin-logout {
+			margin-top: 6px;
+			padding-top: 6px;
+			border-top: 1px solid #f0f0f0;
+			width: 100%;
+		}
+
+		.logout-btn {
+			width: 100%;
+			justify-content: center;
+			font-size: 0.8rem;
+			padding: 8px 10px;
+		}
 	}
 
 	.admin-content {
-		padding: 16px 12px;
+		padding: 12px 8px;
+		height: auto;
+		overflow: visible;
+	}
+
+	.admin-login {
+		max-width: 100%;
+		padding: 0;
+
+		.admin-card {
+			padding: 20px 16px;
+			margin: 0;
+
+			h2 {
+				font-size: 1.3rem;
+				margin-bottom: 16px;
+			}
+		}
+
+		.form-row {
+			margin-bottom: 14px;
+
+			label {
+				font-size: 0.85rem;
+				margin-bottom: 4px;
+			}
+
+			input {
+				padding: 10px 12px;
+				font-size: 0.9rem;
+			}
+		}
+
+		.btn-primary {
+			padding: 11px;
+			font-size: 0.9rem;
+			margin-top: 8px;
+		}
 	}
 
 	.admin-panel-header {
 		flex-direction: column;
-		align-items: flex-start;
-		gap: 12px;
-		padding: 12px 0;
+		align-items: stretch;
+		gap: 10px;
+		padding: 10px 0;
+		position: static;
+		background: transparent;
+		margin-bottom: 12px;
 
 		h2 {
 			font-size: 1.2rem;
+			flex: none;
 		}
 
 		.btn-primary {
 			width: 100%;
+			padding: 11px 16px;
+			font-size: 0.9rem;
 		}
 	}
 
 	.admin-grid {
-		grid-template-columns: 1fr;
+		display: flex;
+		flex-direction: column;
 		gap: 16px;
-	}
-
-	.admin-list {
-		overflow-x: auto;
-
-		table {
-			min-width: 600px;
-			font-size: 0.85rem;
-		}
-
-		th,
-		td {
-			padding: 10px 8px;
-		}
-
-		.item-thumb {
-			width: 50px;
-			height: 50px;
-		}
 	}
 
 	.admin-form-wrap {
 		position: static;
 		top: auto;
 		max-height: none;
-		margin-bottom: 20px;
+		margin-bottom: 16px;
+		order: -1;
+		width: 100%;
+		padding: 16px;
+		border-radius: 10px;
 	}
 
 	.admin-form {
 		.form-row {
+			gap: 6px;
+
 			label {
-				font-size: 0.8rem;
+				font-size: 0.85rem;
+				margin-bottom: 2px;
 			}
 
-			input,
+			input[type='text'],
+			input[type='url'],
+			input[type='password'],
 			textarea {
+				padding: 10px 12px;
+				font-size: 0.9rem;
+			}
+
+			textarea {
+				min-height: 80px;
+			}
+
+			.checkbox-label {
 				font-size: 0.85rem;
-				padding: 8px;
+				padding: 6px 0;
 			}
 		}
-	}
 
-	.image-preview-grid {
-		grid-template-columns: repeat(2, 1fr);
-		gap: 8px;
-	}
-
-	.sub-image-grid {
-		grid-template-columns: 1fr;
-		gap: 8px;
-	}
-
-	.loading-content {
-		padding: 30px 40px;
-		margin: 0 20px;
-	}
-
-	.progress-bar {
-		width: 200px;
-	}
-
-	.admin-logout {
-		margin-top: 12px;
-	}
-
-	.logout-btn {
-		font-size: 0.85rem;
-		padding: 8px 12px;
-	}
-}
-
-@media (max-width: 640px) {
-	.admin-content {
-		padding: 12px 8px;
-	}
-
-	.admin-panel-header {
-		h2 {
-			font-size: 1.1rem;
+		.btn-primary {
+			padding: 11px;
+			font-size: 0.9rem;
+			width: 100%;
 		}
 	}
 
 	.admin-list {
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+		margin: 0 -8px;
+		padding: 0 8px;
+		border-radius: 10px;
+		background: #fff;
+
 		table {
+			min-width: 600px;
 			font-size: 0.8rem;
 		}
 
 		th,
 		td {
-			padding: 8px 6px;
+			padding: 10px 6px;
+		}
+
+		th {
+			font-size: 0.8rem;
+			position: sticky;
+			top: 0;
+			background: #fff;
+			z-index: 10;
 		}
 
 		.item-thumb {
-			width: 40px;
-			height: 40px;
+			width: 50px;
+			height: 50px;
+		}
+
+		.item-title {
+			max-width: 100px;
+			font-size: 0.8rem;
+		}
+
+		.item-desc {
+			max-width: 120px;
+			font-size: 0.75rem;
 		}
 
 		.btn-edit,
@@ -1165,18 +1922,196 @@ onMounted(() => {
 
 	.image-preview-grid {
 		grid-template-columns: 1fr;
+		gap: 10px;
+	}
+
+	.sub-image-grid {
+		grid-template-columns: 1fr;
+		gap: 10px;
 	}
 
 	.loading-content {
-		padding: 24px 30px;
+		padding: 24px 20px;
+		margin: 0 12px;
 	}
 
-	.loading-text {
-		font-size: 0.95rem;
+	.progress-bar {
+		width: 200px;
+	}
+}
+
+@media (max-width: 640px) {
+	.section-admin {
+		padding: 0;
+	}
+	.admin-logo {
+		margin-bottom: 20px;
+	}
+
+	.admin-sidebar {
+		padding: 8px 10px;
+
+		.sidebar-top {
+			gap: 8px;
+			flex-direction: column;
+		}
+
+		.admin-logo {
+			img {
+				width: 100px !important;
+			}
+		}
+
+		.admin-nav {
+			gap: 4px;
+		}
+
+		.admin-nav-item {
+			font-size: 0.75rem;
+			padding: 7px 10px;
+		}
+
+		.logout-btn {
+			font-size: 0.75rem;
+			padding: 7px 8px;
+		}
+	}
+
+	.admin-content {
+		padding: 10px 6px;
+	}
+
+	.admin-login {
+		.admin-card {
+			padding: 18px 14px;
+
+			h2 {
+				font-size: 1.2rem;
+			}
+		}
+
+		.form-row {
+			label {
+				font-size: 0.8rem;
+			}
+
+			input {
+				font-size: 0.85rem;
+				padding: 9px 10px;
+			}
+		}
+
+		.btn-primary {
+			padding: 10px;
+			font-size: 0.85rem;
+		}
+	}
+
+	.admin-panel-header {
+		h2 {
+			font-size: 1.1rem;
+		}
+
+		.btn-primary {
+			padding: 10px 14px;
+			font-size: 0.85rem;
+		}
+	}
+
+	.admin-form-wrap {
+		padding: 14px;
+	}
+
+	.admin-form {
+		.form-row {
+			label {
+				font-size: 0.8rem;
+			}
+
+			input[type='text'],
+			input[type='url'],
+			input[type='password'],
+			textarea {
+				padding: 9px 10px;
+				font-size: 0.85rem;
+			}
+
+			textarea {
+				min-height: 70px;
+			}
+
+			.checkbox-label {
+				font-size: 0.8rem;
+			}
+		}
+
+		.btn-primary {
+			padding: 10px;
+			font-size: 0.85rem;
+		}
+	}
+
+	.admin-list {
+		margin: 0 -6px;
+		padding: 0 6px;
+
+		table {
+			min-width: 550px;
+			font-size: 0.75rem;
+		}
+
+		th,
+		td {
+			padding: 8px 4px;
+		}
+
+		.item-thumb {
+			width: 45px;
+			height: 45px;
+		}
+
+		.item-title {
+			max-width: 80px;
+			font-size: 0.75rem;
+		}
+
+		.item-desc {
+			max-width: 100px;
+			font-size: 0.7rem;
+		}
+
+		.btn-edit,
+		.btn-delete {
+			font-size: 0.7rem;
+			padding: 5px 8px;
+		}
+	}
+
+	.image-preview-grid {
+		gap: 8px;
+	}
+
+	.sub-image-grid {
+		gap: 8px;
+	}
+
+	.loading-content {
+		padding: 20px 16px;
+
+		.loading-spinner {
+			width: 40px;
+			height: 40px;
+		}
+
+		p {
+			font-size: 0.9rem;
+			margin: 10px 0 0;
+		}
 	}
 
 	.progress-bar {
 		width: 160px;
+		height: 6px;
 	}
 }
 </style>
