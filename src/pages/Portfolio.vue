@@ -51,13 +51,13 @@ const observer = ref(null);
 
 const displayedItems = computed(() => {
 	if (isHomePage.value) {
-		// 홈에서는 show_on_home이 true인 항목만 표시
-		const filtered = portfolios.value.filter((item) => item.show_on_home);
+		// 홈에서는 show_on_home이 true인 항목만 표시 (최대 6개)
+		const filtered = portfolios.value.filter((item) => item.show_on_home).slice(0, 6);
 		// 태블릿 범위 (768-1024px)
 		if (windowWidth.value >= 768 && windowWidth.value <= 1024) {
 			// landscape 모드 (가로): 3개 표시
 			if (windowWidth.value > windowHeight.value) {
-				return filtered;
+				return filtered.slice(0, 3);
 			}
 			// portrait 모드 (세로): 2개 표시
 			return filtered.slice(0, 2);

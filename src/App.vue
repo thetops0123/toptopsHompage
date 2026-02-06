@@ -3,7 +3,9 @@
 	<Transition name="loading">
 		<div v-if="isLoading" class="loading-screen">
 			<div class="loading-content">
-				<div class="loading-logo"><span>T</span>HE&nbsp;<span>T</span>OPS</div>
+				<div class="loading-logo">
+					<img src="@/assets/logo_white_main.png" alt="The Tops Logo" class="logo" />
+				</div>
 				<div class="loading-spinner">
 					<div class="spinner-ring"></div>
 					<div class="spinner-ring"></div>
@@ -17,7 +19,7 @@
 		<header class="header" v-if="route.path !== '/admin/administrator'">
 			<router-link to="/" class="logo">
 				<!--<img :src="logoUrl" alt="The Tops Logo" class="logo" />-->
-				<span>T</span>HE&nbsp;<span>T</span>OPS
+				<img src="@/assets/logo_white_main.png" alt="The Tops Logo" class="logo" />
 			</router-link>
 			<nav>
 				<ul>
@@ -29,30 +31,32 @@
 				</ul>
 			</nav>
 			<div class="navCtas">
-				<button class="btn btnPrimary">Photo Booth</button>
+				<a href="https://thepicks.co.kr/" target="_blank" rel="noopener noreferrer" class="btn btnPrimary"
+					>Photo Booth</a
+				>
 			</div>
 		</header>
 
 		<router-view></router-view>
 
 		<footer class="footer" v-if="route.path !== '/admin/administrator'">
-			<div class="logo">
-				<span>THE TOPS</span>
-			</div>
-			<div class="info">
-				<address>경기 하남시 미사강변중앙로31번길 30</address>
-				<p>대표자 : 오용현</p>
-				<p>사업자등록번호 : 123-45-67890</p>
-				<p>전화번호 : 031-123-4567</p>
-				<p>이메일 : hyun6993@naver.com</p>
-				<span>© 2026 THE TOPS. All rights reserved.</span>
+			<div class="container">
+				<div class="logo">
+					<img src="@/assets/logo_black.png" alt="the tops logo" />
+				</div>
+				<div class="info">
+					<address>경기 하남시 미사강변중앙로31번길 30</address>
+					<p>대표자 : 오용현&nbsp;&nbsp;|&nbsp;&nbsp;사업자등록번호 : 123-45-67890</p>
+					<p>전화번호 : 031-123-4567&nbsp;&nbsp;|&nbsp;&nbsp;이메일 : hyun6993@naver.com</p>
+					<span>© 2026 THE TOPS. All rights reserved.</span>
+				</div>
 			</div>
 		</footer>
 	</div>
 </template>
 
 <script setup>
-import logoUrl from './assets/logo.png';
+//import logoUrl from './assets/logo.png';
 import { useRouter, useRoute } from 'vue-router';
 import { nextTick, onMounted, ref, watch } from 'vue';
 
@@ -213,7 +217,7 @@ $section-bg-5: #e0e1dd;
 		}
 
 		img {
-			width: 75%;
+			width: 38%;
 		}
 	}
 
@@ -369,22 +373,39 @@ $section-bg-5: #e0e1dd;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	width: 1120px;
-	background: #0c0c0c;
+	width: 100%;
+	background: #857373;
 	color: $white-text;
-	padding: 2.5rem 0;
+	padding: 2rem 0;
 	margin: 0 auto;
-
-	padding: 2rem 4rem;
 	letter-spacing: 1px;
 
-	.info {
-		text-align: right;
-		font-size: 0.9rem;
-		font-weight: 300;
+	.container {
+		width: 1140px;
+		margin: 0 auto;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
 
-		span {
-			color: #8f8f8f;
+		.logo {
+			img {
+				width: 37%;
+			}
+		}
+		.info {
+			text-align: right;
+			font-size: 0.92rem;
+			font-weight: 300;
+
+			span {
+				color: #d7c6c6;
+				font-weight: 400;
+			}
+
+			address,
+			p {
+				color: #d7c6c6;
+			}
 		}
 	}
 }
@@ -409,6 +430,7 @@ $section-bg-5: #e0e1dd;
 		transform: translateY(-1px);
 		background: rgba(255, 255, 255, 0.06);
 		border-color: rgba(255, 255, 255, 0.26);
+		color: var(--text);
 	}
 }
 
@@ -418,6 +440,7 @@ $section-bg-5: #e0e1dd;
 
 	&:hover {
 		background: linear-gradient(135deg, rgba(187, 0, 0, 0.92), rgba(205, 0, 0, 0.62));
+		color: var(--text);
 	}
 }
 
@@ -451,7 +474,11 @@ $section-bg-5: #e0e1dd;
 			letter-spacing: 2px;
 			color: #e4e4e4;
 			text-transform: uppercase;
+			text-align: center;
 
+			img {
+				width: 50%;
+			}
 			span {
 				color: #df5959;
 			}

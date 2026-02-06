@@ -3,7 +3,13 @@
 		<div class="admin-layout">
 			<aside class="admin-sidebar">
 				<div class="sidebar-top">
-					<div class="admin-logo"><span>T</span>HE&nbsp;<span>T</span>OPS</div>
+					<div class="admin-logo">
+						<img
+							src="@/assets/logo_black_main.png"
+							alt="the tops logo"
+							style="width: 93%; margin-top: 10px"
+						/>
+					</div>
 					<nav class="admin-nav" v-if="isAuthed">
 						<button
 							class="admin-nav-item"
