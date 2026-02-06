@@ -462,16 +462,24 @@
 </template>
 
 <script setup>
-import { computed, onMounted, reactive, ref } from 'vue';
+import { computed, onMounted, onUnmounted, reactive, ref } from 'vue';
 import { supabase } from '@/lib/supabaseClient';
 import { uploadToCloudinary } from '@/lib/cloudinary';
 
 const ADMIN_ID = 'admin';
 const ADMIN_PASSWORD = '@@1234thetops!';
+const SESSION_KEY = 'thetops_admin_session_id';
+const SESSION_CHECK_INTERVAL = 10000; // 10초마다 세션 체크
 
-const isAuthed = ref(localStorage.getItem('thetops_admin_authed') === 'true');
+// 현재 세션 ID 생성
+const currentSessionId = ref(Date.now() + '-' + Math.random().toString(36).substr(2, 9));
+const currentIp = ref('');
+const currentUserAgent = ref(navigator.userAgent);
+
+const isAuthed = ref(false);
 const loginForm = reactive({ id: '', password: '' });
 const loginError = ref('');
+const sessionCheckTimer = ref(null);
 
 const activeTab = ref('rental');
 const items = ref([]);
@@ -507,20 +515,186 @@ const activeTabLabel = computed(() => {
 });
 const isPartnerTab = computed(() => activeTab.value === 'partner');
 
-const handleLogin = () => {
-	if (loginForm.id === ADMIN_ID && loginForm.password === ADMIN_PASSWORD) {
-		isAuthed.value = true;
-		loginError.value = '';
-		localStorage.setItem('thetops_admin_authed', 'true');
-		fetchItems();
-		return;
+// IP 주소 가져오기
+const fetchIpAddress = async () => {
+	try {
+		const response = await fetch('https://api.ipify.org?format=json');
+		const data = await response.json();
+		currentIp.value = data.ip;
+	} catch (err) {
+		console.error('IP 주소를 가져오지 못했습니다:', err);
+		currentIp.value = 'unknown';
 	}
-	loginError.value = '아이디 또는 비밀번호가 올바르지 않습니다.';
 };
 
-const logout = () => {
+// Supabase에 세션 생성
+const createSession = async () => {
+	try {
+		// 기존 세션 삭제 (같은 session_id)
+		await supabase.from('admin_sessions').delete().eq('session_id', currentSessionId.value);
+
+		// 새 세션 생성
+		const { error } = await supabase.from('admin_sessions').insert({
+			session_id: currentSessionId.value,
+			ip_address: currentIp.value,
+			user_agent: currentUserAgent.value,
+			last_active: new Date().toISOString(),
+		});
+
+		if (error) throw error;
+		localStorage.setItem(SESSION_KEY, currentSessionId.value);
+		return true;
+	} catch (err) {
+		console.error('세션 생성 실패:', err);
+		return false;
+	}
+};
+
+// 세션 활동 업데이트
+const updateSessionActivity = async () => {
+	try {
+		const { error } = await supabase
+			.from('admin_sessions')
+			.update({ last_active: new Date().toISOString() })
+			.eq('session_id', currentSessionId.value);
+
+		if (error) throw error;
+	} catch (err) {
+		console.error('세션 활동 업데이트 실패:', err);
+	}
+};
+
+// 세션 검증 (Supabase)
+const validateSession = async () => {
+	const localSessionId = localStorage.getItem(SESSION_KEY);
+	if (!localSessionId) {
+		if (isAuthed.value) {
+			isAuthed.value = false;
+		}
+		return false;
+	}
+
+	try {
+		// Supabase에서 모든 활성 세션 조회
+		const { data: sessions, error } = await supabase
+			.from('admin_sessions')
+			.select('*')
+			.order('created_at', { ascending: false });
+
+		if (error) throw error;
+
+		// 24시간 이상 된 세션 삭제
+		const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+		await supabase.from('admin_sessions').delete().lt('created_at', oneDayAgo);
+
+		// 현재 세션 찾기
+		const currentSession = sessions?.find((s) => s.session_id === localSessionId);
+
+		if (!currentSession) {
+			// 현재 세션이 DB에 없음 (다른 곳에서 로그인했거나 삭제됨)
+			if (isAuthed.value) {
+				isAuthed.value = false;
+				localStorage.removeItem(SESSION_KEY);
+				alert('다른 기기에서 로그인되어 현재 세션이 종료되었습니다.');
+			}
+			return false;
+		}
+
+		// 세션이 유효하면 활동 시간 업데이트
+		await updateSessionActivity();
+		return true;
+	} catch (err) {
+		console.error('세션 검증 실패:', err);
+		localStorage.removeItem(SESSION_KEY);
+		return false;
+	}
+};
+
+// 세션 삭제
+const deleteSession = async () => {
+	try {
+		await supabase.from('admin_sessions').delete().eq('session_id', currentSessionId.value);
+		localStorage.removeItem(SESSION_KEY);
+	} catch (err) {
+		console.error('세션 삭제 실패:', err);
+	}
+};
+
+const handleLogin = async () => {
+	if (loginForm.id !== ADMIN_ID || loginForm.password !== ADMIN_PASSWORD) {
+		loginError.value = '아이디 또는 비밀번호가 올바르지 않습니다.';
+		return;
+	}
+
+	try {
+		loginError.value = '로그인 중...';
+
+		// IP 주소 가져오기
+		await fetchIpAddress();
+
+		// 기존 활성 세션 확인
+		const { data: existingSessions, error: fetchError } = await supabase
+			.from('admin_sessions')
+			.select('*')
+			.order('created_at', { ascending: false })
+			.limit(5);
+
+		if (fetchError) throw fetchError;
+
+		if (existingSessions && existingSessions.length > 0) {
+			const sessionInfo = existingSessions
+				.map((s) => {
+					const time = new Date(s.created_at).toLocaleString('ko-KR');
+					return `- IP: ${s.ip_address} (${time})`;
+				})
+				.join('\n');
+
+			const shouldProceed = confirm(
+				`이미 로그인된 세션이 있습니다:\n\n${sessionInfo}\n\n계속하시면 기존 세션이 모두 종료됩니다. 계속하시겠습니까?`
+			);
+
+			if (!shouldProceed) {
+				loginError.value = '';
+				return;
+			}
+
+			// 기존 세션 모두 삭제
+			await supabase.from('admin_sessions').delete().neq('session_id', 'dummy');
+		}
+
+		// 새 세션 생성
+		const success = await createSession();
+		if (!success) {
+			loginError.value = '세션 생성에 실패했습니다.';
+			return;
+		}
+
+		isAuthed.value = true;
+		loginError.value = '';
+		fetchItems();
+
+		// 주기적으로 세션 체크 시작
+		if (sessionCheckTimer.value) {
+			clearInterval(sessionCheckTimer.value);
+		}
+		sessionCheckTimer.value = setInterval(validateSession, SESSION_CHECK_INTERVAL);
+	} catch (err) {
+		console.error('로그인 실패:', err);
+		loginError.value = '로그인 중 오류가 발생했습니다.';
+	}
+};
+
+const logout = async () => {
 	isAuthed.value = false;
-	localStorage.removeItem('thetops_admin_authed');
+	
+	// Supabase에서 세션 삭제
+	await deleteSession();
+	
+	// 세션 체크 타이머 정리
+	if (sessionCheckTimer.value) {
+		clearInterval(sessionCheckTimer.value);
+		sessionCheckTimer.value = null;
+	}
 };
 
 const selectTab = (tab) => {
@@ -727,10 +901,25 @@ const deleteItem = async (item) => {
 	await fetchItems();
 };
 
-onMounted(() => {
-	if (isAuthed.value) {
+onMounted(async () => {
+	// 세션 검증 및 복구
+	const isValid = await validateSession();
+	if (isValid) {
+		isAuthed.value = true;
 		fetchItems();
+		
+		// 주기적 세션 체크 시작
+		sessionCheckTimer.value = setInterval(validateSession, SESSION_CHECK_INTERVAL);
 	}
+});
+
+onUnmounted(async () => {
+	// 정리
+	if (sessionCheckTimer.value) {
+		clearInterval(sessionCheckTimer.value);
+	}
+	
+	// 페이지 종료 시 세션은 유지 (로그아웃하지 않음)
 });
 </script>
 
