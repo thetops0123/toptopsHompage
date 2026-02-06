@@ -402,8 +402,6 @@ $error-color: #ff4444;
 	min-height: 100vh;
 
 	.container {
-		max-width: 900px;
-
 		h2 {
 			font-size: 2.5rem;
 			font-weight: 700;
