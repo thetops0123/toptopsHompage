@@ -31,11 +31,89 @@
 				</ul>
 			</nav>
 			<div class="navCtas">
-				<a href="https://thepicks.co.kr/" target="_blank" rel="noopener noreferrer" class="btn btnPrimary"
+				<a
+					href="https://thepicks.co.kr/"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="btn btnPrimary desktop-only"
 					>Photo Booth</a
 				>
+				<button class="hamburger" @click="mobileMenuOpen = !mobileMenuOpen" :class="{ active: mobileMenuOpen }">
+					<span></span>
+					<span></span>
+					<span></span>
+				</button>
 			</div>
 		</header>
+
+		<!-- 모바일 메뉴 -->
+		<Transition name="mobile-menu">
+			<div v-if="mobileMenuOpen" class="mobile-menu" @click="mobileMenuOpen = false">
+				<nav class="mobile-nav" @click.stop>
+					<ul>
+						<li>
+							<a
+								href="#"
+								@click.prevent="
+									scrollToSection('about');
+									mobileMenuOpen = false;
+								"
+								>About</a
+							>
+						</li>
+						<li>
+							<a
+								href="#"
+								@click.prevent="
+									scrollToSection('history');
+									mobileMenuOpen = false;
+								"
+								>History</a
+							>
+						</li>
+						<li>
+							<a
+								href="#"
+								@click.prevent="
+									scrollToSection('rental');
+									mobileMenuOpen = false;
+								"
+								>Rental</a
+							>
+						</li>
+						<li>
+							<a
+								href="#"
+								@click.prevent="
+									scrollToSection('portfolio');
+									mobileMenuOpen = false;
+								"
+								>Portfolio</a
+							>
+						</li>
+						<li>
+							<a
+								href="#"
+								@click.prevent="
+									scrollToSection('contact');
+									mobileMenuOpen = false;
+								"
+								>Contact</a
+							>
+						</li>
+						<li class="photobooth-link">
+							<a
+								href="https://thepicks.co.kr/"
+								target="_blank"
+								rel="noopener noreferrer"
+								@click="mobileMenuOpen = false"
+								>Photo Booth</a
+							>
+						</li>
+					</ul>
+				</nav>
+			</div>
+		</Transition>
 
 		<router-view></router-view>
 
@@ -63,6 +141,7 @@ import { nextTick, onMounted, ref, watch } from 'vue';
 const router = useRouter();
 const route = useRoute();
 const isLoading = ref(true);
+const mobileMenuOpen = ref(false);
 
 // 라우트 변경 시 최상단으로 스크롤
 watch(
@@ -248,6 +327,126 @@ $section-bg-5: #e0e1dd;
 
 	.navCtas {
 		margin-left: 2rem;
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+
+		.hamburger {
+			display: none;
+			flex-direction: column;
+			justify-content: space-between;
+			width: 46px;
+			height: 22px;
+			background: transparent;
+			border: none;
+			cursor: pointer;
+			padding: 0;
+			z-index: 1001;
+
+			span {
+				display: block;
+				height: 3px;
+				width: 100%;
+				background: #fff;
+				border-radius: 3px;
+				transition: all 0.3s ease;
+			}
+
+			&.active {
+				span:nth-child(1) {
+					transform: translateY(9.5px) rotate(45deg);
+				}
+
+				span:nth-child(2) {
+					opacity: 0;
+				}
+
+				span:nth-child(3) {
+					transform: translateY(-9.5px) rotate(-45deg);
+				}
+			}
+		}
+	}
+}
+
+// 모바일 메뉴
+.mobile-menu {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	background: rgba(0, 0, 0, 0.9);
+	z-index: 1000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	.mobile-nav {
+		ul {
+			list-style: none;
+			display: flex;
+			flex-direction: column;
+			gap: 2rem;
+			text-align: center;
+
+			li {
+				a {
+					text-decoration: none;
+					color: #fff;
+					font-size: 1.8rem;
+					font-weight: 600;
+					letter-spacing: 1px;
+					transition: all 0.3s ease;
+
+					&:hover {
+						color: #df5959;
+						transform: translateX(10px);
+					}
+				}
+
+				&.photobooth-link {
+					margin-top: 1rem;
+					padding-top: 1.5rem;
+					border-top: 1px solid rgba(255, 255, 255, 0.2);
+
+					a {
+						background: linear-gradient(135deg, rgba(236, 53, 53, 0.85), rgba(241, 29, 29, 0.55));
+						padding: 0.8rem 2rem;
+						border-radius: 50px;
+						display: inline-block;
+						font-size: 1.5rem;
+
+						&:hover {
+							background: linear-gradient(135deg, rgba(187, 0, 0, 0.92), rgba(205, 0, 0, 0.62));
+							color: #fff;
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+.desktop-only {
+	display: inline-block;
+}
+
+.mobile-menu-enter-active,
+.mobile-menu-leave-active {
+	transition: opacity 0.3s ease;
+
+	.mobile-nav {
+		transition: transform 0.3s ease;
+	}
+}
+
+.mobile-menu-enter-from,
+.mobile-menu-leave-to {
+	opacity: 0;
+
+	.mobile-nav {
+		transform: translateY(-20px);
 	}
 }
 
@@ -374,7 +573,7 @@ $section-bg-5: #e0e1dd;
 	align-items: center;
 	justify-content: space-between;
 	width: 100%;
-	background: #857373;
+	background: #cdc2c2;
 	color: $white-text;
 	padding: 2rem 0;
 	margin: 0 auto;
@@ -395,16 +594,17 @@ $section-bg-5: #e0e1dd;
 		.info {
 			text-align: right;
 			font-size: 0.92rem;
-			font-weight: 300;
+			font-weight: 400;
 
 			span {
-				color: #d7c6c6;
-				font-weight: 400;
+				font-size: 0.87rem;
+				color: #333;
+				font-weight: 500;
 			}
 
 			address,
 			p {
-				color: #d7c6c6;
+				color: #555;
 			}
 		}
 	}
@@ -539,12 +739,20 @@ $section-bg-5: #e0e1dd;
 
 // 모바일 반응형
 @media (max-width: 968px) {
+	.desktop-only {
+		display: none !important;
+	}
+
 	.header {
 		padding: 0 2rem;
 		height: 60px;
 
 		.logo {
 			font-size: 1.4rem;
+
+			img {
+				width: 55%;
+			}
 		}
 
 		nav {
@@ -554,9 +762,8 @@ $section-bg-5: #e0e1dd;
 		.navCtas {
 			margin-left: auto;
 
-			.btn {
-				font-size: 0.85rem;
-				padding: 8px 16px;
+			.hamburger {
+				display: flex;
 			}
 		}
 	}
@@ -584,22 +791,34 @@ $section-bg-5: #e0e1dd;
 
 	.footer {
 		padding: 2rem 1.5rem;
-		flex-direction: column;
-		gap: 1.5rem;
-		text-align: center;
+
+		.container {
+			width: 100%;
+			flex-direction: column;
+			gap: 1.5rem;
+			align-items: flex-start;
+		}
 
 		.logo {
-			font-size: 1.4rem;
+			img {
+				width: 45%;
+			}
 		}
 
 		.info {
-			font-size: 0.85rem;
-			line-height: 1.6;
+			text-align: left;
+			font-size: 0.8rem;
+			line-height: 1.8;
 
 			address,
-			p,
+			p {
+				margin: 6px 0;
+			}
+
 			span {
-				margin: 4px 0;
+				display: block;
+				margin-top: 10px;
+				font-size: 0.75rem;
 			}
 		}
 	}
@@ -636,12 +855,37 @@ $section-bg-5: #e0e1dd;
 
 		.logo {
 			font-size: 1.2rem;
+
+			img {
+				width: 37%;
+			}
 		}
 
 		.navCtas {
+			gap: 0.5rem;
+
 			.btn {
-				font-size: 0.8rem;
-				padding: 6px 12px;
+				font-size: 0.75rem;
+				padding: 6px 10px;
+			}
+
+			.hamburger {
+				width: 24px;
+				height: 18px;
+
+				span {
+					height: 2.5px;
+				}
+
+				&.active {
+					span:nth-child(1) {
+						transform: translateY(7.75px) rotate(45deg);
+					}
+
+					span:nth-child(3) {
+						transform: translateY(-7.75px) rotate(-45deg);
+					}
+				}
 			}
 		}
 	}
@@ -670,12 +914,30 @@ $section-bg-5: #e0e1dd;
 	.footer {
 		padding: 1.5rem 1rem;
 
+		.container {
+			width: 100%;
+		}
+
 		.logo {
-			font-size: 1.2rem;
+			img {
+				width: 50%;
+			}
 		}
 
 		.info {
-			font-size: 0.8rem;
+			width: 100%;
+			font-size: 0.75rem;
+			line-height: 1.4;
+			letter-spacing: -0.02rem;
+
+			address,
+			p {
+				margin: 0;
+			}
+
+			span {
+				font-size: 0.7rem;
+			}
 		}
 	}
 }

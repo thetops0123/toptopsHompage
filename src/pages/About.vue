@@ -22,8 +22,10 @@
 									<path d="M14 28H34" stroke="#ff2f2f" stroke-width="2" stroke-linecap="round" />
 								</svg>
 							</div>
-							<h5>DIRECTION</h5>
-							<p>기획부터 진행까지<br />모든 것을 책임집니다</p>
+							<div class="service-content">
+								<h5>DIRECTION</h5>
+								<p>기획부터 진행까지<br />모든 것을 책임집니다</p>
+							</div>
 						</div>
 
 						<div class="service-card">
@@ -46,8 +48,10 @@
 									<circle cx="24" cy="20" r="2" fill="#ff2f2f" />
 								</svg>
 							</div>
-							<h5>PRODUCTION</h5>
-							<p>높은 퀄리티의<br />제작 서비스</p>
+							<div class="service-content">
+								<h5>PRODUCTION</h5>
+								<p>높은 퀄리티의<br />제작 서비스</p>
+							</div>
 						</div>
 
 						<div class="service-card">
@@ -62,8 +66,10 @@
 									/>
 								</svg>
 							</div>
-							<h5>RENTAL</h5>
-							<p>필요한 모든 장비<br />렌탈 서비스</p>
+							<div class="service-content">
+								<h5>RENTAL</h5>
+								<p>필요한 모든 장비<br />렌탈 서비스</p>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -94,9 +100,11 @@
 										/>
 									</svg>
 								</div>
-								<div class="flow-title">CONSULTING</div>
-								<div class="flow-desc">
-									고객의 니즈를 분석하고 최적의 행사 전략과 컨셉을 수립합니다.
+								<div class="flow-content">
+									<div class="flow-title">CONSULTING</div>
+									<div class="flow-desc">
+										고객의 니즈를 분석하고 최적의 행사 전략과 컨셉을 수립합니다.
+									</div>
 								</div>
 							</div>
 							<div class="flow-item flow-item--2">
@@ -115,9 +123,11 @@
 										<circle cx="20" cy="10" r="2" fill="#6b91b7" />
 									</svg>
 								</div>
-								<div class="flow-title">DESIGN</div>
-								<div class="flow-desc">
-									공간 설계, 무대 디자인, 영상 콘텐츠 등 시각적인 요소를 구체화합니다.
+								<div class="flow-content">
+									<div class="flow-title">DESIGN</div>
+									<div class="flow-desc">
+										공간 설계, 무대 디자인, 영상 콘텐츠 등 시각적인 요소를 구체화합니다.
+									</div>
 								</div>
 							</div>
 							<div class="flow-item flow-item--3">
@@ -140,9 +150,11 @@
 										/>
 									</svg>
 								</div>
-								<div class="flow-title">PRODUCTION</div>
-								<div class="flow-desc">
-									자체 장비와 전문 인력을 투입하여 현장을 완벽하게 구축하고 리허설합니다.
+								<div class="flow-content">
+									<div class="flow-title">PRODUCTION</div>
+									<div class="flow-desc">
+										자체 장비와 전문 인력을 투입하여 현장을 완벽하게 구축하고 리허설합니다.
+									</div>
 								</div>
 							</div>
 							<div class="flow-item flow-item--4">
@@ -166,9 +178,11 @@
 										/>
 									</svg>
 								</div>
-								<div class="flow-title">OPERATION</div>
-								<div class="flow-desc">
-									안정적으로 행사를 운영하고, 종료 후 명확한 성과 데이터를 보고합니다.
+								<div class="flow-content">
+									<div class="flow-title">OPERATION</div>
+									<div class="flow-desc">
+										안정적으로 행사를 운영하고, 종료 후 명확한 성과 데이터를 보고합니다.
+									</div>
 								</div>
 							</div>
 						</div>
@@ -393,10 +407,48 @@
 
 	@media (max-width: 968px) {
 		.content {
+			gap: 4rem;
+		}
+		.content {
 			.service-section {
 				.service-grid {
 					grid-template-columns: 1fr;
-					gap: 1.5rem;
+					gap: 2.5rem;
+
+					.service-card {
+						display: flex;
+						align-items: flex-start;
+						text-align: left;
+						padding: 0;
+
+						.service-icon {
+							width: 90px;
+							height: 90px;
+							min-width: 90px;
+							margin: 0 1.5rem 0 0;
+
+							svg {
+								width: 48px;
+								height: 48px;
+							}
+						}
+
+						.service-content {
+							flex: 1;
+						}
+
+						h5 {
+							font-size: 1.3rem;
+							margin-bottom: 0.5rem;
+						}
+
+						p {
+							font-size: 1rem;
+							br {
+								display: none;
+							}
+						}
+					}
 				}
 			}
 
@@ -409,34 +461,87 @@
 						order: unset;
 					}
 				}
+
+				.story-text {
+					.story-flow {
+						grid-template-columns: 1fr;
+						gap: 3rem;
+
+						&::before {
+							display: none;
+						}
+
+						.flow-item {
+							display: flex;
+							align-items: flex-start;
+							text-align: left;
+							padding: 0;
+
+							&::after {
+								display: none;
+							}
+						}
+
+						.flow-icon {
+							width: 80px;
+							height: 80px;
+							min-width: 80px;
+							margin: 0 1.5rem 0 0;
+							border-width: 8px;
+
+							svg {
+								width: 32px;
+								height: 32px;
+							}
+						}
+
+						.flow-content {
+							flex: 1;
+						}
+
+						.flow-title {
+							font-size: 1.2rem;
+							margin-bottom: 0.5rem;
+						}
+
+						.flow-desc {
+							font-size: 0.9rem;
+						}
+					}
+				}
 			}
 		}
 	}
 
 	@media (max-width: 640px) {
 		.content {
+			gap: 0rem;
+		}
+		.content {
 			.service-section {
 				.service-grid {
-					gap: 1.2rem;
-				}
+					gap: 2rem;
 
-				.service-card {
-					.service-icon {
-						width: 70px;
-						height: 70px;
+					.service-card {
+						.service-icon {
+							width: 75px;
+							height: 75px;
+							min-width: 75px;
+							margin: 0 1rem 0 0;
 
-						svg {
-							width: 36px;
-							height: 36px;
+							svg {
+								width: 40px;
+								height: 40px;
+							}
 						}
-					}
 
-					h5 {
-						font-size: 1rem;
-					}
+						h5 {
+							font-size: 1.15rem;
+						}
 
-					p {
-						font-size: 0.85rem;
+						p {
+							font-size: 0.9rem;
+						}
 					}
 				}
 			}
@@ -455,6 +560,31 @@
 
 					p {
 						font-size: 0.9rem;
+					}
+
+					.story-flow {
+						gap: 2rem;
+
+						.flow-icon {
+							width: 70px;
+							height: 70px;
+							min-width: 70px;
+							margin: 0 1rem 0 0;
+							border-width: 6px;
+
+							svg {
+								width: 28px;
+								height: 28px;
+							}
+						}
+
+						.flow-title {
+							font-size: 1.1rem;
+						}
+
+						.flow-desc {
+							font-size: 0.85rem;
+						}
 					}
 				}
 			}
