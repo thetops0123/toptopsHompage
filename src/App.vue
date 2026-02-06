@@ -903,11 +903,11 @@ $section-bg-5: #e0e1dd;
 		}
 
 		h2 {
-			font-size: 1.5rem;
+			font-size: 1.3rem;
 		}
 
 		h3 {
-			font-size: 0.9rem;
+			font-size: 0.8rem;
 		}
 	}
 
