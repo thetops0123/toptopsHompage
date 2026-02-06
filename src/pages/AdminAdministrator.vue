@@ -859,6 +859,8 @@ onMounted(() => {
 }
 
 .admin-content {
+	display: flex;
+	justify-content: center;
 	background: #ffffff;
 	padding: 0px 48px;
 	height: 100vh;
@@ -866,6 +868,9 @@ onMounted(() => {
 }
 
 .admin-login {
+	display: flex;
+	justify-content: center;
+	align-items: center;
 	max-width: 420px;
 }
 
@@ -1351,7 +1356,9 @@ onMounted(() => {
 	}
 
 	.admin-layout {
-		grid-template-columns: 1fr;
+		display: flex;
+		flex-direction: column;
+		//grid-template-columns: 1fr;
 		height: auto;
 		min-height: 100vh;
 		gap: 0;
