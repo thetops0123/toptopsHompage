@@ -233,7 +233,13 @@
 
 		h3 {
 			font-size: 1rem;
-			margin-bottom: 2rem;
+			margin-bottom: 3rem;
+		}
+
+		.timeline-container {
+			.airplane-icon {
+				display: none;
+			}
 		}
 
 		.timeline-svg {
@@ -245,11 +251,38 @@
 			gap: 1.5rem;
 		}
 
+		.timeline-item {
+			background: rgba(255, 255, 255, 0.03);
+			border: 1px solid rgba(255, 255, 255, 0.08);
+			border-radius: 12px;
+			padding: 1.5rem;
+			align-items: flex-start;
+
+			.timeline-label {
+				color: #00a8cc;
+				margin-bottom: 1rem;
+				font-size: 1.4rem;
+				padding-bottom: 0.8rem;
+				border-bottom: 2px solid rgba(0, 168, 204, 0.3);
+			}
+		}
+
 		.project-list {
-			font-size: 0.85rem;
+			font-size: 0.9rem;
+			line-height: 1.6;
 
 			li {
-				margin-bottom: 0.5rem;
+				margin-bottom: 0.7rem;
+				padding-left: 1rem;
+				position: relative;
+
+				&::before {
+					content: '•';
+					position: absolute;
+					left: 0;
+					color: #00a8cc;
+					font-weight: bold;
+				}
 			}
 		}
 	}
@@ -263,6 +296,7 @@
 
 		h3 {
 			font-size: 0.9rem;
+			margin-bottom: 2rem;
 		}
 
 		.timeline-content-wrapper {
@@ -270,17 +304,21 @@
 		}
 
 		.timeline-item {
-			.year {
-				font-size: 1.3rem;
-			}
+			padding: 1.2rem;
 
-			h4 {
-				font-size: 1rem;
+			.timeline-label {
+				font-size: 1.2rem;
+				margin-bottom: 0.8rem;
+				padding-bottom: 0.6rem;
 			}
 		}
 
 		.project-list {
-			font-size: 0.8rem;
+			font-size: 0.85rem;
+
+			li {
+				margin-bottom: 0.6rem;
+			}
 		}
 	}
 }

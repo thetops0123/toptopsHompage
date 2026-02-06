@@ -28,7 +28,12 @@
 							<polyline points="8 14 2 8 8 2"></polyline>
 						</svg>
 					</button>
-					<div class="media-modal__image">
+					<div
+						class="media-modal__image"
+						@touchstart="handleTouchStart"
+						@touchmove="handleTouchMove"
+						@touchend="handleTouchEnd"
+					>
 						<img :src="currentImage" alt="" />
 					</div>
 					<button class="media-modal__nav media-modal__nav--next" type="button" @click="next">
@@ -48,16 +53,18 @@
 					</button>
 				</div>
 				<div class="media-modal__thumbs" v-if="images.length > 1">
-					<button
-						v-for="(img, idx) in images"
-						:key="`${img}-${idx}`"
-						class="media-modal__thumb"
-						:class="{ 'is-active': idx === currentIndex }"
-						type="button"
-						@click="setIndex(idx)"
-					>
-						<img :src="img" alt="" />
-					</button>
+					<div class="thumbs-carousel" :style="{ transform: `translateX(${thumbsOffset}px)` }">
+						<button
+							v-for="(img, idx) in images"
+							:key="`${img}-${idx}`"
+							class="media-modal__thumb"
+							:class="{ 'is-active': idx === currentIndex }"
+							type="button"
+							@click="setIndex(idx)"
+						>
+							<img :src="img" alt="" />
+						</button>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -77,7 +84,27 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue']);
 const currentIndex = ref(0);
 
+// 터치 스와이프
+const touchStartX = ref(0);
+const touchEndX = ref(0);
+
 const currentImage = computed(() => props.images[currentIndex.value] || '');
+
+// 썸네일 캐러셀 오프셋
+const thumbsOffset = computed(() => {
+	const thumbWidth = 90; // 80px + 10px gap
+	const visibleThumbs = 4;
+	const centerOffset = Math.floor(visibleThumbs / 2);
+	let offset = -(currentIndex.value - centerOffset) * thumbWidth;
+
+	// 경계 처리
+	const maxOffset = 0;
+	const minOffset = -(props.images.length - visibleThumbs) * thumbWidth;
+	if (offset > maxOffset) offset = maxOffset;
+	if (offset < minOffset) offset = minOffset;
+
+	return offset;
+});
 
 const setIndex = (index) => {
 	if (index < 0) {
@@ -101,6 +128,33 @@ const handleKey = (event) => {
 	if (event.key === 'ArrowLeft') prev();
 	if (event.key === 'ArrowRight') next();
 	if (event.key === 'Escape') close();
+};
+
+// 터치 이벤트 핸들러
+const handleTouchStart = (e) => {
+	touchStartX.value = e.touches[0].clientX;
+};
+
+const handleTouchMove = (e) => {
+	touchEndX.value = e.touches[0].clientX;
+};
+
+const handleTouchEnd = () => {
+	const swipeDistance = touchStartX.value - touchEndX.value;
+	const minSwipeDistance = 50;
+
+	if (Math.abs(swipeDistance) > minSwipeDistance) {
+		if (swipeDistance > 0) {
+			// 왼쪽으로 스와이프 -> 다음
+			next();
+		} else {
+			// 오른쪽으로 스와이프 -> 이전
+			prev();
+		}
+	}
+
+	touchStartX.value = 0;
+	touchEndX.value = 0;
 };
 
 watch(
@@ -268,10 +322,14 @@ onUnmounted(() => {
 
 	&__thumbs {
 		margin-top: 14px;
+		overflow: hidden;
+		width: 100%;
+	}
+
+	.thumbs-carousel {
 		display: flex;
 		gap: 10px;
-		justify-content: center;
-		flex-wrap: wrap;
+		transition: transform 0.3s ease;
 	}
 
 	&__thumb {
@@ -283,6 +341,7 @@ onUnmounted(() => {
 		overflow: hidden;
 		width: 80px;
 		height: 50px;
+		flex-shrink: 0;
 		outline: none;
 
 		&:focus {
@@ -301,6 +360,98 @@ onUnmounted(() => {
 		}
 
 		&.is-active {
+			border-color: #333;
+		}
+	}
+}
+
+// 모바일 반응형
+@media (max-width: 968px) {
+	.media-modal {
+		&__dialog {
+			max-width: 95%;
+			width: 95%;
+			padding: 16px;
+			background: transparent;
+			border-radius: 0;
+		}
+
+		&__close {
+			top: 16px;
+			left: 16px;
+		}
+
+		&__body {
+			gap: 8px;
+			justify-content: center;
+		}
+
+		&__image {
+			border-radius: 8px;
+		}
+
+		&__nav {
+			width: 40px;
+			height: 40px;
+
+			svg {
+				width: 14px;
+				height: 22px;
+			}
+		}
+
+		&__thumbs {
+			margin-top: 12px;
+		}
+
+		&__thumb {
+			width: 70px;
+			height: 45px;
+		}
+	}
+}
+
+@media (max-width: 640px) {
+	.media-modal {
+		&__dialog {
+			max-width: 100%;
+			width: 100%;
+			padding: 12px 0;
+			background: transparent;
+		}
+
+		&__close {
+			top: 12px;
+			left: 12px;
+		}
+
+		&__body {
+			gap: 0;
+			justify-content: center;
+		}
+
+		&__image {
+			border-radius: 6px;
+			width: calc(100% - 32px);
+			margin: 0 10px;
+		}
+
+		&__nav {
+			display: none;
+		}
+
+		&__thumbs {
+			padding: 0 12px;
+			margin-top: 16px;
+		}
+
+		.thumbs-carousel {
+			justify-content: center;
+		}
+
+		&__thumb {
+			width: 60px;
+			height: 40px;
 		}
 	}
 }

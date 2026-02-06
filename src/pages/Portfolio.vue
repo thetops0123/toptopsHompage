@@ -39,6 +39,8 @@ const loading = ref(true);
 const error = ref('');
 const displayLimit = ref(3);
 const ITEMS_PER_PAGE = 6;
+const windowWidth = ref(window.innerWidth);
+const windowHeight = ref(window.innerHeight);
 
 const isModalOpen = ref(false);
 const modalImages = ref([]);
@@ -50,7 +52,17 @@ const observer = ref(null);
 const displayedItems = computed(() => {
 	if (isHomePage.value) {
 		// 홈에서는 show_on_home이 true인 항목만 표시
-		return portfolios.value.filter((item) => item.show_on_home);
+		const filtered = portfolios.value.filter((item) => item.show_on_home);
+		// 태블릿 범위 (768-1024px)
+		if (windowWidth.value >= 768 && windowWidth.value <= 1024) {
+			// landscape 모드 (가로): 3개 표시
+			if (windowWidth.value > windowHeight.value) {
+				return filtered;
+			}
+			// portrait 모드 (세로): 2개 표시
+			return filtered.slice(0, 2);
+		}
+		return filtered;
 	}
 	return portfolios.value.slice(0, displayLimit.value);
 });
@@ -103,6 +115,13 @@ const fetchPortfolios = async () => {
 onMounted(async () => {
 	await fetchPortfolios();
 
+	// 윈도우 리사이즈 이벤트
+	const handleResize = () => {
+		windowWidth.value = window.innerWidth;
+		windowHeight.value = window.innerHeight;
+	};
+	window.addEventListener('resize', handleResize);
+
 	// Portfolio 페이지에서만 Intersection Observer 설정
 	if (!isHomePage.value && loadMoreTrigger.value) {
 		observer.value = new IntersectionObserver(
@@ -119,6 +138,7 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
+	window.removeEventListener('resize', () => {});
 	if (observer.value) {
 		observer.value.disconnect();
 	}
@@ -138,10 +158,14 @@ $gray-text: #b0b0b0;
 		transform: translateX(5px);
 	}
 }
+
+.section {
+	height: initial;
+}
 .section-portfolio {
 	background: #b13d3d;
 	color: #fff;
-	min-height: 100vh;
+	//min-height: 100vh;
 
 	h2 {
 		color: #fff;
@@ -153,8 +177,8 @@ $gray-text: #b0b0b0;
 
 	.portfolio-grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-		gap: 3rem;
+		grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+		gap: 2.5rem;
 
 		.portfolio-card {
 			background: #ffffff;
@@ -191,7 +215,8 @@ $gray-text: #b0b0b0;
 			}
 
 			h3 {
-				font-size: 1.2rem;
+				font-size: 1.1rem;
+
 				margin: 1.5rem 1.5rem 0.8rem 1.5rem;
 				font-weight: 600;
 				color: #333;

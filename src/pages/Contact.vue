@@ -400,7 +400,6 @@ $error-color: #ff4444;
 .section-contact {
 	background: #000;
 	min-height: 100vh;
-	padding: 8rem 0 4rem;
 
 	.container {
 		max-width: 900px;
@@ -706,21 +705,16 @@ $error-color: #ff4444;
 	}
 }
 
-// 반응형
-@media (max-width: 768px) {
+// 모바일 반응형
+@media (max-width: 968px) {
 	.section-contact {
-		.contact-info {
-			grid-template-columns: 1fr;
-		}
+		padding: 3rem 0;
+	}
+}
 
-		.contact-form {
-			padding: 2rem 1.5rem;
-		}
-
-		.privacy-modal .privacy-content {
-			padding: 2rem 1.5rem;
-			margin: 1rem;
-		}
+@media (max-width: 640px) {
+	.section-contact {
+		padding: 3rem 0;
 	}
 }
 </style>

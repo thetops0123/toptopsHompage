@@ -263,7 +263,7 @@ $section-bg-5: #e0e1dd;
 		height: 100%;
 		margin: 0 auto;
 		z-index: 2;
-		padding: 2.5rem 0 0 0;
+		padding: 0;
 	}
 
 	.section-header {
@@ -541,6 +541,11 @@ $section-bg-5: #e0e1dd;
 			padding: 1.5rem 1.5rem 0;
 		}
 
+		.btn-view-all {
+			padding: 0.6rem 1.2rem;
+			font-size: 0.85rem;
+		}
+
 		h2 {
 			font-size: 1.8rem;
 		}
@@ -588,6 +593,15 @@ $section-bg-5: #e0e1dd;
 	}
 }
 
+// 태블릿 landscape 모드
+@media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+	.section {
+		.container {
+			padding: 2.5rem 3rem 0;
+		}
+	}
+}
+
 @media (max-width: 640px) {
 	.header {
 		padding: 0 1rem;
@@ -610,6 +624,11 @@ $section-bg-5: #e0e1dd;
 
 		.container {
 			padding: 1rem 1rem 0;
+		}
+
+		.btn-view-all {
+			padding: 0.5rem 1rem;
+			font-size: 0.8rem;
 		}
 
 		h2 {

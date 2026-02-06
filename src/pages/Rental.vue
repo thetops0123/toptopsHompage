@@ -39,6 +39,8 @@ const loading = ref(true);
 const error = ref('');
 const displayLimit = ref(3);
 const ITEMS_PER_PAGE = 6;
+const windowWidth = ref(window.innerWidth);
+const windowHeight = ref(window.innerHeight);
 
 const isModalOpen = ref(false);
 const modalImages = ref([]);
@@ -50,7 +52,17 @@ const observer = ref(null);
 const displayedItems = computed(() => {
 	if (isHomePage.value) {
 		// 홈에서는 show_on_home이 true인 항목만 표시
-		return rentalItems.value.filter((item) => item.show_on_home);
+		const filtered = rentalItems.value.filter((item) => item.show_on_home);
+		// 태블릿 범위 (768-1024px)
+		if (windowWidth.value >= 768 && windowWidth.value <= 1024) {
+			// landscape 모드 (가로): 3개 표시
+			if (windowWidth.value > windowHeight.value) {
+				return filtered;
+			}
+			// portrait 모드 (세로): 2개 표시
+			return filtered.slice(0, 2);
+		}
+		return filtered;
 	}
 	return rentalItems.value.slice(0, displayLimit.value);
 });
@@ -103,6 +115,13 @@ const fetchRentals = async () => {
 onMounted(async () => {
 	await fetchRentals();
 
+	// 윈도우 리사이즈 이벤트
+	const handleResize = () => {
+		windowWidth.value = window.innerWidth;
+		windowHeight.value = window.innerHeight;
+	};
+	window.addEventListener('resize', handleResize);
+
 	// Rental 페이지에서만 Intersection Observer 설정
 	if (!isHomePage.value && loadMoreTrigger.value) {
 		observer.value = new IntersectionObserver(
@@ -119,6 +138,7 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
+	window.removeEventListener('resize', () => {});
 	if (observer.value) {
 		observer.value.disconnect();
 	}
@@ -177,7 +197,7 @@ $white-text: #ffffff;
 			}
 
 			h3 {
-				font-size: 1.3rem;
+				font-size: 1.1rem;
 				margin-bottom: 0.8rem;
 				font-weight: 600;
 				color: $white-text;
@@ -188,6 +208,11 @@ $white-text: #ffffff;
 				font-size: 1rem;
 				line-height: 1.6;
 				margin: 0;
+				display: -webkit-box;
+				-webkit-line-clamp: 3;
+				-webkit-box-orient: vertical;
+				overflow: hidden;
+				text-overflow: ellipsis;
 			}
 		}
 	}

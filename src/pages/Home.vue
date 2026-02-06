@@ -17,7 +17,7 @@
 
 		<!-- 협력사 로고 스와이프 -->
 		<div class="brand-slider" v-if="brands.length > 0">
-			<div class="brand-track" :style="{ transform: `translateX(calc(50% - 380px - ${displayIndex * 240}px))` }">
+			<div class="brand-track" :style="sliderTransform">
 				<div
 					v-for="(brand, index) in clonedBrands"
 					:key="index"
@@ -63,6 +63,7 @@ import { supabase } from '@/lib/supabaseClient';
 
 const currentIndex = ref(0);
 const brands = ref([]);
+const windowWidth = ref(window.innerWidth);
 let intervalId = null;
 
 // Supabase에서 제휴처 데이터 가져오기
@@ -88,6 +89,43 @@ const clonedBrands = computed(() => {
 });
 
 const displayIndex = computed(() => currentIndex.value + brands.value.length);
+
+// 반응형 슬라이더 transform 계산
+const sliderTransform = computed(() => {
+	const width = windowWidth.value;
+	let itemSize, gap, offset;
+
+	if (width <= 640) {
+		// 모바일
+		itemSize = 80;
+
+		// 윈도우 리사이즈 이벤트 리스너
+		const handleResize = () => {
+			windowWidth.value = window.innerWidth;
+		};
+		window.addEventListener('resize', handleResize);
+
+		// cleanup 함수에서 제거하기 위해 저장
+		onUnmounted(() => {
+			window.removeEventListener('resize', handleResize);
+		});
+		gap = 6;
+		offset = 160; // 화면 중앙에서 아이템 중앙까지
+	} else if (width <= 968) {
+		// 태블릿
+		itemSize = 100;
+		gap = 8;
+		offset = 200;
+	} else {
+		// 데스크톱
+		itemSize = 200;
+		gap = 10;
+		offset = 380;
+	}
+
+	const moveDistance = itemSize + gap;
+	return { transform: `translateX(calc(50% - ${offset}px - ${displayIndex.value * moveDistance}px))` };
+});
 
 onMounted(async () => {
 	await fetchPartners();
@@ -192,7 +230,7 @@ $light-gray: #f8f9fa;
 		right: 0;
 		width: 100%;
 		height: 200px;
-		overflow: visible;
+		overflow: hidden;
 		z-index: 10;
 		display: flex;
 		align-items: center;
@@ -254,63 +292,81 @@ $light-gray: #f8f9fa;
 	}
 }
 
+// 태블릿 landscape 모드
+@media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+	.section-visual {
+		.container {
+			h1 {
+				margin-top: 3rem;
+			}
+		}
+	}
+}
+
 // 모바일 반응형
 @media (max-width: 968px) {
-	.hero {
+	.section-visual {
 		.container {
 			max-width: 95%;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
 
 			h1 {
-				font-size: 2rem;
-				margin: 6rem 0 0 0;
+				font-size: 1.8rem;
+				margin: 0;
+				line-height: 1.5;
+				text-align: center;
 			}
 
 			p {
-				font-size: 1.1rem;
-				line-height: 1.6;
+				display: none;
 			}
 		}
 
 		.brand-slider {
-			bottom: 4rem;
-			height: 140px;
+			bottom: 6rem;
+			height: 100px;
 
-			.brand-slide {
-				gap: 40px;
+			.brand-track {
+				gap: 8px;
+			}
 
-				.brand-item {
-					width: 120px;
-					height: 60px;
-				}
+			.brand-item {
+				width: 100px;
+				height: 100px;
 			}
 		}
 	}
 }
 
 @media (max-width: 640px) {
-	.hero {
+	.section-visual {
 		.container {
 			h1 {
-				font-size: 1.6rem;
-				margin: 4rem 0 0 0;
+				font-size: 2rem;
+				margin: 0;
+				line-height: 1.6;
+				text-align: center;
 			}
 
 			p {
-				font-size: 0.95rem;
+				display: none;
 			}
 		}
 
 		.brand-slider {
-			bottom: 2rem;
-			height: 100px;
+			bottom: 7.5rem;
+			height: 80px;
 
-			.brand-slide {
-				gap: 30px;
+			.brand-track {
+				gap: 6px;
+			}
 
-				.brand-item {
-					width: 90px;
-					height: 45px;
-				}
+			.brand-item {
+				width: 80px;
+				height: 80px;
 			}
 		}
 	}

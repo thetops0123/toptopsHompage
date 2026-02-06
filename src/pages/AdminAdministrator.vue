@@ -174,11 +174,33 @@
 							<form v-else @submit.prevent="handleSubmit" class="admin-form">
 								<div class="form-row">
 									<label>제목</label>
-									<input v-model="form.title" type="text" required />
+									<input
+										v-model="form.title"
+										type="text"
+										required
+										style="
+											height: 40px;
+											padding: 0 10px;
+											background: #000;
+											border-radius: 6px;
+											border: none;
+										"
+										placeholder="제목을 입력하세요"
+									/>
 								</div>
 								<div class="form-row">
-									<label>설명</label>
-									<textarea v-model="form.description" rows="4" required></textarea>
+									<label>
+										설명
+										<span class="char-count">{{ form.description.length }}/60자</span>
+									</label>
+									<textarea
+										placeholder="최대 60자까지 가능합니다."
+										v-model="form.description"
+										rows="4"
+										maxlength="60"
+										required
+									></textarea>
+									<small class="hint">카드에 3줄로 표시됩니다 (최대 60자)</small>
 								</div>
 
 								<div class="form-row" v-if="activeTab === 'rental' || activeTab === 'portfolio'">
@@ -725,17 +747,29 @@ onMounted(() => {
 		label {
 			font-size: 0.85rem;
 			color: #444;
+			display: flex;
+			justify-content: flex-start;
+			align-items: center;
+
+			.char-count {
+				font-size: 0.75rem;
+				color: #999;
+			}
 		}
 
-		input,
 		textarea {
-			border: 1px solid #ddd;
 			border-radius: 8px;
 			padding: 10px;
 			font-size: 0.9rem;
-			background: #fff;
-			color: #333;
+			background: #000;
+			color: #fff;
 
+			&::placeholder {
+				color: #999;
+			}
+		}
+
+		input {
 			&::placeholder {
 				color: #999;
 			}
@@ -745,12 +779,19 @@ onMounted(() => {
 			margin-top: 6px;
 
 			img {
-				width: 230px;
+				width: 100%;
 				height: auto;
 				max-height: 150px;
 				object-fit: contain;
 			}
 		}
+	}
+
+	.hint {
+		font-size: 0.75rem;
+		color: #999;
+		margin-top: 4px;
+		display: block;
 	}
 }
 
@@ -759,7 +800,7 @@ onMounted(() => {
 
 	img {
 		width: 100%;
-		height: 120px;
+		height: auto;
 		object-fit: cover;
 		border-radius: 8px;
 		border: 1px solid #eee;
