@@ -297,7 +297,7 @@ $light-gray: #f8f9fa;
 	.section-visual {
 		.container {
 			h1 {
-				margin-top: 3rem;
+				margin-top: 2.8rem;
 			}
 		}
 	}
@@ -345,7 +345,7 @@ $light-gray: #f8f9fa;
 	.section-visual {
 		.container {
 			h1 {
-				font-size: 2rem;
+				font-size: 1.7rem;
 				margin: 0;
 				line-height: 1.6;
 				text-align: center;
