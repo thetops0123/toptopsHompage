@@ -787,8 +787,8 @@ $section-bg-5: #e0e1dd;
 		}
 
 		.btn-view-all {
-			padding: 0.6rem 1.2rem;
-			font-size: 0.85rem;
+			padding: 0.39rem 0.78rem;
+			font-size: 0.55rem;
 		}
 
 		h2 {
@@ -909,8 +909,8 @@ $section-bg-5: #e0e1dd;
 		}
 
 		.btn-view-all {
-			padding: 0.5rem 1rem;
-			font-size: 0.8rem;
+			padding: 0.325rem 0.65rem;
+			font-size: 0.52rem;
 		}
 
 		h2 {

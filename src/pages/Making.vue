@@ -390,19 +390,12 @@ $white-text: #ffffff;
 		padding: 60px 0;
 
 		h2 {
-			font-size: 1.8rem;
+			font-size: 1.3rem;
 		}
 
 		h3 {
-			font-size: 1rem;
-			margin-bottom: 40px;
-			padding: 0 20px;
+			font-size: 0.8rem;
 		}
-	}
-
-	.btn-view-all {
-		padding: 8px 20px;
-		font-size: 0.9rem;
 	}
 
 	.making-grid {
