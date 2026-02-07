@@ -37,9 +37,10 @@
 
 	<!-- History 섹션 -->
 	<History />
-
 	<!-- Topsvisual 섹션 -->
 	<Topsvisual />
+	<!-- Making 섹션 -->
+	<Making />
 
 	<!-- Rental 섹션 -->
 	<Rental />
@@ -55,6 +56,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import About from './About.vue';
 import History from './History.vue';
+import Making from './Making.vue';
 import Rental from './Rental.vue';
 import Topsvisual from './Topsvisual.vue';
 import Portfolio from './Portfolio.vue';

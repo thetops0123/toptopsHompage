@@ -13,46 +13,53 @@
 					<h3>{{ title }}</h3>
 				</div>
 				<div class="media-modal__body">
-					<button class="media-modal__nav media-modal__nav--prev" type="button" @click="prev">
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							width="19"
-							height="30"
-							viewBox="0 0 10 16"
-							fill="none"
-							stroke="currentColor"
-							stroke-width="3"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-						>
-							<polyline points="8 14 2 8 8 2"></polyline>
-						</svg>
-					</button>
-					<div
-						class="media-modal__image"
-						@touchstart="handleTouchStart"
-						@touchmove="handleTouchMove"
-						@touchend="handleTouchEnd"
-					>
-						<img :src="currentImage" alt="" />
+					<!-- Video Mode -->
+					<div v-if="isVideo" class="media-modal__video">
+						<video :src="videoUrl" controls autoplay style="max-width: 100%; max-height: 80vh"></video>
 					</div>
-					<button class="media-modal__nav media-modal__nav--next" type="button" @click="next">
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							width="19"
-							height="30"
-							viewBox="0 0 10 16"
-							fill="none"
-							stroke="currentColor"
-							stroke-width="3"
-							stroke-linecap="round"
-							stroke-linejoin="round"
+					<!-- Image Gallery Mode -->
+					<template v-else>
+						<button class="media-modal__nav media-modal__nav--prev" type="button" @click="prev">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="19"
+								height="30"
+								viewBox="0 0 10 16"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="3"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							>
+								<polyline points="8 14 2 8 8 2"></polyline>
+							</svg>
+						</button>
+						<div
+							class="media-modal__image"
+							@touchstart="handleTouchStart"
+							@touchmove="handleTouchMove"
+							@touchend="handleTouchEnd"
 						>
-							<polyline points="2 14 8 8 2 2"></polyline>
-						</svg>
-					</button>
+							<img :src="currentImage" alt="" />
+						</div>
+						<button class="media-modal__nav media-modal__nav--next" type="button" @click="next">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="19"
+								height="30"
+								viewBox="0 0 10 16"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="3"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							>
+								<polyline points="2 14 8 8 2 2"></polyline>
+							</svg>
+						</button>
+					</template>
 				</div>
-				<div class="media-modal__thumbs" v-if="images.length > 1">
+				<div class="media-modal__thumbs" v-if="!isVideo && images.length > 1">
 					<div class="thumbs-carousel" :style="{ transform: `translateX(${thumbsOffset}px)` }">
 						<button
 							v-for="(img, idx) in images"
@@ -79,6 +86,8 @@ const props = defineProps({
 	images: { type: Array, default: () => [] },
 	startIndex: { type: Number, default: 0 },
 	title: { type: String, default: '' },
+	isVideo: { type: Boolean, default: false },
+	videoUrl: { type: String, default: '' },
 });
 
 const emit = defineEmits(['update:modelValue']);

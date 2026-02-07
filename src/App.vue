@@ -25,6 +25,7 @@
 				<ul>
 					<li><a href="#" @click.prevent="scrollToSection('about')">About</a></li>
 					<li><a href="#" @click.prevent="scrollToSection('history')">History</a></li>
+					<li><a href="#" @click.prevent="scrollToSection('making')">Making</a></li>
 					<li><a href="#" @click.prevent="scrollToSection('rental')">Rental</a></li>
 					<li><a href="#" @click.prevent="scrollToSection('portfolio')">Portfolio</a></li>
 					<li><a href="#" @click.prevent="scrollToSection('contact')">Contact</a></li>
@@ -69,6 +70,16 @@
 									mobileMenuOpen = false;
 								"
 								>History</a
+							>
+						</li>
+						<li>
+							<a
+								href="#"
+								@click.prevent="
+									scrollToSection('making');
+									mobileMenuOpen = false;
+								"
+								>Making</a
 							>
 						</li>
 						<li>

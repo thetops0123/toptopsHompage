@@ -10,7 +10,11 @@ export const uploadToCloudinary = async (file) => {
 	formData.append('file', file);
 	formData.append('upload_preset', uploadPreset);
 
-	const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+	// 파일 타입에 따라 적절한 엔드포인트 사용
+	const resourceType = file.type.startsWith('video/') ? 'video' : 'image';
+	const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`;
+
+	const response = await fetch(uploadUrl, {
 		method: 'POST',
 		body: formData,
 	});

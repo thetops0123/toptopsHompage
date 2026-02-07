@@ -13,12 +13,21 @@
 					<nav class="admin-nav" v-if="isAuthed">
 						<button
 							class="admin-nav-item"
+							:class="{ 'is-active': activeTab === 'making' }"
+							type="button"
+							@click="selectTab('making')"
+						>
+							메이킹 관리
+						</button>
+						<button
+							class="admin-nav-item"
 							:class="{ 'is-active': activeTab === 'rental' }"
 							type="button"
 							@click="selectTab('rental')"
 						>
 							렌탈 관리
 						</button>
+
 						<button
 							class="admin-nav-item"
 							:class="{ 'is-active': activeTab === 'portfolio' }"
@@ -112,9 +121,22 @@
 							@click="editMobileItem(item)"
 						>
 							<div class="card-image">
-								<img :src="isPartnerTab ? item.logo_url : item.main_image_url" alt="" />
+								<video
+									v-if="isMakingTab"
+									:src="item.main_video_url"
+									muted
+									loop
+									playsinline
+									@click.stop
+								></video>
+								<img v-else :src="isPartnerTab ? item.logo_url : item.main_image_url" alt="" />
 								<span
-									v-if="(activeTab === 'rental' || activeTab === 'portfolio') && item.show_on_home"
+									v-if="
+										(activeTab === 'rental' ||
+											activeTab === 'portfolio' ||
+											activeTab === 'making') &&
+										item.show_on_home
+									"
 									class="card-badge"
 									>메인 표시</span
 								>
@@ -170,7 +192,15 @@
 										<th>썸네일</th>
 										<th>제목</th>
 										<th>설명</th>
-										<th v-if="activeTab === 'rental' || activeTab === 'portfolio'">메인표시</th>
+										<th
+											v-if="
+												activeTab === 'rental' ||
+												activeTab === 'making' ||
+												activeTab === 'portfolio'
+											"
+										>
+											메인표시
+										</th>
 										<th>관리</th>
 									</tr>
 									<tr v-else>
@@ -189,7 +219,23 @@
 									</tr>
 									<tr v-for="item in items" :key="item.id">
 										<td>
+											<video
+												v-if="isMakingTab"
+												class="thumb"
+												:src="item.main_video_url"
+												muted
+												loop
+												playsinline
+												@mouseenter="(e) => e.target.play()"
+												@mouseleave="
+													(e) => {
+														e.target.pause();
+														e.target.currentTime = 0;
+													}
+												"
+											></video>
 											<img
+												v-else
 												class="thumb"
 												:src="isPartnerTab ? item.logo_url : item.main_image_url"
 												alt=""
@@ -198,7 +244,13 @@
 										<td>{{ isPartnerTab ? item.name : item.title }}</td>
 										<td v-if="!isPartnerTab" class="desc">{{ item.description }}</td>
 										<td v-else>{{ item.display_order }}</td>
-										<td v-if="activeTab === 'rental' || activeTab === 'portfolio'">
+										<td
+											v-if="
+												activeTab === 'rental' ||
+												activeTab === 'making' ||
+												activeTab === 'portfolio'
+											"
+										>
 											<span
 												class="badge"
 												:class="item.show_on_home ? 'badge-active' : 'badge-inactive'"
@@ -268,11 +320,12 @@
 											background: #000;
 											border-radius: 6px;
 											border: none;
+											color: #fff;
 										"
 										placeholder="제목을 입력하세요"
 									/>
 								</div>
-								<div class="form-row">
+								<div class="form-row" v-if="!isMakingTab">
 									<label>
 										설명
 										<span class="char-count">{{ form.description.length }}/60자</span>
@@ -287,42 +340,68 @@
 									<small class="hint">카드에 3줄로 표시됩니다 (최대 60자)</small>
 								</div>
 
-								<div class="form-row" v-if="activeTab === 'rental' || activeTab === 'portfolio'">
+								<div
+									class="form-row"
+									v-if="activeTab === 'rental' || activeTab === 'portfolio' || activeTab === 'making'"
+								>
 									<label class="checkbox-label">
 										<input v-model="form.showOnHome" type="checkbox" />
 										<span>메인 화면에 표시</span>
 									</label>
 								</div>
 
-								<div class="form-row">
-									<label>메인 이미지</label>
-									<input
-										:key="'main-' + fileInputKey"
-										type="file"
-										accept="image/*"
-										@change="onMainFileChange"
-									/>
-									<div class="preview" v-if="form.mainImageUrl">
-										<img :src="form.mainImageUrl" alt="" />
+								<!-- Making 탭: 비디오 및 썸네일 -->
+								<template v-if="isMakingTab">
+									<div class="form-row">
+										<label>비디오 파일 (MP4)</label>
+										<input
+											:key="'video-' + fileInputKey"
+											type="file"
+											accept="video/mp4"
+											@change="onVideoFileChange"
+										/>
+										<div class="preview" v-if="form.mainVideoUrl">
+											<video
+												:src="form.mainVideoUrl"
+												controls
+												style="max-width: 100%; max-height: 200px"
+											></video>
+										</div>
 									</div>
-								</div>
+								</template>
 
-								<div class="form-row">
-									<label>서브 이미지 (3장)</label>
-									<div class="sub-image-grid">
-										<div v-for="(url, idx) in form.subImageUrls" :key="idx" class="sub-item">
-											<input
-												:key="'sub-' + idx + '-' + fileInputKey"
-												type="file"
-												accept="image/*"
-												@change="(e) => onSubFileChange(e, idx)"
-											/>
-											<div class="preview" v-if="url">
-												<img :src="url" alt="" />
+								<!-- Rental/Portfolio 탭: 이미지들 -->
+								<template v-else>
+									<div class="form-row">
+										<label>메인 이미지</label>
+										<input
+											:key="'main-' + fileInputKey"
+											type="file"
+											accept="image/*"
+											@change="onMainFileChange"
+										/>
+										<div class="preview" v-if="form.mainImageUrl">
+											<img :src="form.mainImageUrl" alt="" />
+										</div>
+									</div>
+
+									<div class="form-row">
+										<label>서브 이미지 (3장)</label>
+										<div class="sub-image-grid">
+											<div v-for="(url, idx) in form.subImageUrls" :key="idx" class="sub-item">
+												<input
+													:key="'sub-' + idx + '-' + fileInputKey"
+													type="file"
+													accept="image/*"
+													@change="(e) => onSubFileChange(e, idx)"
+												/>
+												<div class="preview" v-if="url">
+													<img :src="url" alt="" />
+												</div>
 											</div>
 										</div>
 									</div>
-								</div>
+								</template>
 
 								<button class="btn-primary" type="submit" :disabled="saving">
 									{{ saving ? '저장 중...' : form.id ? '수정하기' : '등록하기' }}
@@ -387,7 +466,7 @@
 									<label>제목</label>
 									<input v-model="form.title" type="text" required placeholder="제목을 입력하세요" />
 								</div>
-								<div class="form-row">
+								<div class="form-row" v-if="!isMakingTab">
 									<label>
 										설명
 										<span class="char-count">{{ form.description.length }}/60자</span>
@@ -401,42 +480,68 @@
 									></textarea>
 								</div>
 
-								<div class="form-row" v-if="activeTab === 'rental' || activeTab === 'portfolio'">
+								<div
+									class="form-row"
+									v-if="activeTab === 'rental' || activeTab === 'portfolio' || activeTab === 'making'"
+								>
 									<label class="checkbox-label">
 										<input v-model="form.showOnHome" type="checkbox" />
 										<span>메인 화면에 표시</span>
 									</label>
 								</div>
 
-								<div class="form-row">
-									<label>메인 이미지</label>
-									<input
-										:key="'main-' + fileInputKey"
-										type="file"
-										accept="image/*"
-										@change="onMainFileChange"
-									/>
-									<div class="preview" v-if="form.mainImageUrl">
-										<img :src="form.mainImageUrl" alt="" />
+								<!-- Making 탭: 비디오 및 썸네일 -->
+								<template v-if="isMakingTab">
+									<div class="form-row">
+										<label>비디오 파일 (MP4)</label>
+										<input
+											:key="'video-' + fileInputKey"
+											type="file"
+											accept="video/mp4"
+											@change="onVideoFileChange"
+										/>
+										<div class="preview" v-if="form.mainVideoUrl">
+											<video
+												:src="form.mainVideoUrl"
+												controls
+												style="max-width: 100%; max-height: 200px"
+											></video>
+										</div>
 									</div>
-								</div>
+								</template>
 
-								<div class="form-row">
-									<label>서브 이미지 (3장)</label>
-									<div class="sub-image-grid">
-										<div v-for="(url, idx) in form.subImageUrls" :key="idx" class="sub-item">
-											<input
-												:key="'sub-' + idx + '-' + fileInputKey"
-												type="file"
-												accept="image/*"
-												@change="(e) => onSubFileChange(e, idx)"
-											/>
-											<div class="preview" v-if="url">
-												<img :src="url" alt="" />
+								<!-- Rental/Portfolio 탭: 이미지들 -->
+								<template v-else>
+									<div class="form-row">
+										<label>메인 이미지</label>
+										<input
+											:key="'main-' + fileInputKey"
+											type="file"
+											accept="image/*"
+											@change="onMainFileChange"
+										/>
+										<div class="preview" v-if="form.mainImageUrl">
+											<img :src="form.mainImageUrl" alt="" />
+										</div>
+									</div>
+
+									<div class="form-row">
+										<label>서브 이미지 (3장)</label>
+										<div class="sub-image-grid">
+											<div v-for="(url, idx) in form.subImageUrls" :key="idx" class="sub-item">
+												<input
+													:key="'sub-' + idx + '-' + fileInputKey"
+													type="file"
+													accept="image/*"
+													@change="(e) => onSubFileChange(e, idx)"
+												/>
+												<div class="preview" v-if="url">
+													<img :src="url" alt="" />
+												</div>
 											</div>
 										</div>
 									</div>
-								</div>
+								</template>
 
 								<button class="btn-primary" type="submit" :disabled="saving">
 									{{ saving ? '저장 중...' : form.id ? '수정하기' : '등록하기' }}
@@ -501,19 +606,25 @@ const form = reactive({
 	subFiles: [null, null, null],
 	displayOrder: 1,
 	showOnHome: false,
+	// Making용 필드
+	mainVideoUrl: '',
+	videoFile: null,
 });
 
 const activeTable = computed(() => {
 	if (activeTab.value === 'rental') return 'rentals';
+	if (activeTab.value === 'making') return 'makings';
 	if (activeTab.value === 'portfolio') return 'portfolios';
 	return 'partners';
 });
 const activeTabLabel = computed(() => {
 	if (activeTab.value === 'rental') return '렌탈 관리';
+	if (activeTab.value === 'making') return '메이킹 관리';
 	if (activeTab.value === 'portfolio') return '포트폴리오 관리';
 	return '제휴처 관리';
 });
 const isPartnerTab = computed(() => activeTab.value === 'partner');
+const isMakingTab = computed(() => activeTab.value === 'making');
 
 // IP 주소 가져오기
 const fetchIpAddress = async () => {
@@ -650,7 +761,7 @@ const handleLogin = async () => {
 				.join('\n');
 
 			const shouldProceed = confirm(
-				`이미 로그인된 세션이 있습니다:\n\n${sessionInfo}\n\n계속하시면 기존 세션이 모두 종료됩니다. 계속하시겠습니까?`
+				`이미 로그인된 세션이 있습니다:\n\n${sessionInfo}\n\n계속하시면 기존 세션이 모두 종료됩니다. 계속하시겠습니까?`,
 			);
 
 			if (!shouldProceed) {
@@ -686,10 +797,10 @@ const handleLogin = async () => {
 
 const logout = async () => {
 	isAuthed.value = false;
-	
+
 	// Supabase에서 세션 삭제
 	await deleteSession();
-	
+
 	// 세션 체크 타이머 정리
 	if (sessionCheckTimer.value) {
 		clearInterval(sessionCheckTimer.value);
@@ -711,6 +822,8 @@ const resetForm = () => {
 	form.subImageUrls = ['', '', ''];
 	form.mainFile = null;
 	form.subFiles = [null, null, null];
+	form.mainVideoUrl = '';
+	form.videoFile = null;
 	form.displayOrder = 1;
 	form.showOnHome = false;
 	formError.value = '';
@@ -739,9 +852,14 @@ const fetchItems = async () => {
 	loading.value = true;
 	error.value = '';
 
-	const selectFields = isPartnerTab.value
-		? 'id, name, logo_url, display_order, created_at'
-		: 'id, title, description, main_image_url, sub_image_urls, show_on_home, created_at';
+	let selectFields;
+	if (isPartnerTab.value) {
+		selectFields = 'id, name, logo_url, display_order, created_at';
+	} else if (isMakingTab.value) {
+		selectFields = 'id, title, main_video_url, show_on_home, created_at';
+	} else {
+		selectFields = 'id, title, description, main_image_url, sub_image_urls, show_on_home, created_at';
+	}
 
 	const orderBy = isPartnerTab.value ? 'display_order' : 'created_at';
 
@@ -774,13 +892,32 @@ const onSubFileChange = (event, index) => {
 	form.subImageUrls[index] = URL.createObjectURL(file);
 };
 
+const onVideoFileChange = (event) => {
+	const file = event.target.files?.[0];
+	if (!file) return;
+	if (!file.type.startsWith('video/')) {
+		formError.value = '비디오 파일만 업로드 가능합니다.';
+		return;
+	}
+	form.videoFile = file;
+	form.mainVideoUrl = URL.createObjectURL(file);
+	formError.value = '';
+};
+
 const editItem = (item) => {
 	form.id = item.id;
 	if (isPartnerTab.value) {
 		form.title = item.name;
 		form.mainImageUrl = item.logo_url || '';
 		form.displayOrder = item.display_order || 1;
+	} else if (isMakingTab.value) {
+		// Making 탭: 비디오 필드
+		form.title = item.title;
+		form.mainVideoUrl = item.main_video_url || '';
+		form.showOnHome = item.show_on_home || false;
+		form.videoFile = null;
 	} else {
+		// Rental/Portfolio 탭: 이미지 필드
 		form.title = item.title;
 		form.description = item.description;
 		form.mainImageUrl = item.main_image_url || '';
@@ -830,6 +967,48 @@ const handleSubmit = async () => {
 		} catch (err) {
 			console.error('Partner save error:', err);
 			formError.value = err.message || '저장에 실패했습니다.';
+		} finally {
+			saving.value = false;
+		}
+		return;
+	}
+
+	// Making 탭 처리
+	if (isMakingTab.value) {
+		if (!form.title.trim()) {
+			formError.value = '제목을 입력하세요.';
+			return;
+		}
+
+		saving.value = true;
+
+		try {
+			// 비디오 파일 업로드
+			const videoUrl = form.videoFile ? await uploadToCloudinary(form.videoFile) : form.mainVideoUrl;
+			if (!videoUrl) {
+				throw new Error('비디오 파일을 업로드하세요.');
+			}
+
+			const payload = {
+				title: form.title,
+				main_video_url: videoUrl,
+				show_on_home: form.showOnHome,
+			};
+
+			if (form.id) {
+				const { error: updateError } = await supabase.from('makings').update(payload).eq('id', form.id);
+				if (updateError) throw updateError;
+			} else {
+				const { error: insertError } = await supabase.from('makings').insert(payload);
+				if (insertError) throw insertError;
+			}
+
+			resetForm();
+			await fetchItems();
+			closeMobileForm();
+		} catch (err) {
+			console.error('Making save error:', err);
+			formError.value = err.message || '저장 중 오류가 발생했습니다.';
 		} finally {
 			saving.value = false;
 		}
@@ -907,7 +1086,7 @@ onMounted(async () => {
 	if (isValid) {
 		isAuthed.value = true;
 		fetchItems();
-		
+
 		// 주기적 세션 체크 시작
 		sessionCheckTimer.value = setInterval(validateSession, SESSION_CHECK_INTERVAL);
 	}
@@ -918,7 +1097,7 @@ onUnmounted(async () => {
 	if (sessionCheckTimer.value) {
 		clearInterval(sessionCheckTimer.value);
 	}
-	
+
 	// 페이지 종료 시 세션은 유지 (로그아웃하지 않음)
 });
 </script>
@@ -1048,8 +1227,6 @@ onUnmounted(async () => {
 }
 
 .admin-content {
-	display: flex;
-	justify-content: center;
 	background: #ffffff;
 	padding: 0px 48px;
 	height: 100vh;
@@ -1617,7 +1794,8 @@ onUnmounted(async () => {
 			align-items: center;
 			justify-content: center;
 
-			img {
+			img,
+			video {
 				width: 43%;
 				//height: 100%;
 				object-fit: cover;

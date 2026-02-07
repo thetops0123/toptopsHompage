@@ -133,9 +133,6 @@
 <script setup></script>
 
 <style lang="scss" scoped>
-.section {
-	height: initial;
-}
 .section-history {
 	background: #0c0c0c;
 

@@ -17,7 +17,10 @@
 
 <style lang="scss" scoped>
 .section {
-	height: 400px;
+	height: 350px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 
 	&.section-topsvisual {
 		position: relative;
