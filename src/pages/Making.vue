@@ -400,11 +400,6 @@ $white-text: #ffffff;
 		}
 	}
 
-	.section-header {
-		flex-direction: column;
-		gap: 15px;
-	}
-
 	.btn-view-all {
 		padding: 8px 20px;
 		font-size: 0.9rem;
