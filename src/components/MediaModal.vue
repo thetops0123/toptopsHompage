@@ -8,7 +8,7 @@
 					<line x1="6" y1="6" x2="18" y2="18" stroke-width="2" stroke-linecap="round" />
 				</svg>
 			</button>
-			<div class="media-modal__dialog" role="dialog" aria-modal="true">
+			<div class="media-modal__dialog" :class="{ 'video-mode': isVideo }" role="dialog" aria-modal="true">
 				<div class="media-modal__header" v-if="title">
 					<h3>{{ title }}</h3>
 				</div>
@@ -221,6 +221,12 @@ onUnmounted(() => {
 		width: 70%;
 		padding: 24px;
 
+		&.video-mode {
+			background: transparent;
+			max-width: none;
+			width: auto;
+		}
+
 		@media (max-width: 640px) {
 			padding: 18px;
 		}
@@ -333,6 +339,9 @@ onUnmounted(() => {
 		margin-top: 14px;
 		overflow: hidden;
 		width: 100%;
+		display: flex;
+		align-self: center;
+		justify-content: center;
 	}
 
 	.thumbs-carousel {
